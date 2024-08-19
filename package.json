@@ -1,0 +1,23 @@
+{
+  "name": "lofi-work-log",
+  "version": "1.0.0",
+  "description": "Pomodoro Clock with lofi music to record your daily accomplishments",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yeugeneu/Lofi-Work-Log.git"
+  },
+  "author": "Eugene Yu",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yeugeneu/Lofi-Work-Log/issues"
+  },
+  "homepage": "https://github.com/yeugeneu/Lofi-Work-Log#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.46.1",
+    "@types/node": "^22.4.1"
+  }
+}

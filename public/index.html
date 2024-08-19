@@ -1,0 +1,48 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="#">
+    <title>Lo-Fi Work Break Reminder with music</title>
+    <link rel="stylesheet" href="style.css" >
+    <script type="text/javascript" src="script.js"></script>
+  </head>
+  <body>
+    <div id="timer-container">
+      <div id="timer">00:25:00</div>
+      <div id="timer-controls">
+        <input type="number" id="custom-hours" class="custom-time-input" min="0" max="23" value="0" placeholder="HH" oninput="this.value = Math.min(Math.max(this.value, 0), 23)">
+        <input type="number" id="custom-minutes" class="custom-time-input" min="0" max="59" value="25" placeholder="MM" oninput="this.value = Math.min(Math.max(this.value, 0), 59)">
+        <input type="number" id="custom-seconds" class="custom-time-input" min="0" max="59" value="0" placeholder="SS" oninput="this.value = Math.min(Math.max(this.value, 0), 59)">
+        <button class="timer-control" onclick="customizeTimer()">Set</button>
+        <button class="timer-control" id="pauseResume" onclick="pauseResumeTimer()">Play</button>
+        <button class="timer-control" onclick="resetTimer()">Reset</button>
+      </div>
+    </div>
+
+    <div class="popup" id="reminderPopup">
+      <h1>Time for a Break!</h1>
+      <p>What have you accomplished in the last session?</p>
+      <textarea id="accomplishmentInput" placeholder="Enter your accomplishments..."></textarea>
+      <button onclick="submitAccomplishment()">Submit</button>
+    </div>
+
+    <div id="accomplishments">
+      <h2>Today's Accomplishments</h2>
+      <ul id="accomplishmentsList"></ul>
+      <button class="timer-control" onclick="clearAccomplishments()">Clear All</button>
+    </div>
+
+    <div class="vinyl-player">
+      <div class="vinyl-record">
+        <div class="vinyl-label">Lo-Fi</div>
+      </div>
+    </div>
+    <div class="audio-controls">
+      <button class="audio-control" id="previousTrack" onclick="previousTrack()"><i class="fas fa-step-backward"></i></button>
+      <button class="audio-control" id="playPause" onclick="pauseResumeTimer()"><i id="playPauseIcon" class="fas fa-play"></i></button>
+      <button class="audio-control" id="nextTrack" onclick="nextTrack()"><i class="fas fa-step-forward"></i></button>
+    </div>
+  </body>
+</html>
