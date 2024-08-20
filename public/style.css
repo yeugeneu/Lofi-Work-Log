@@ -206,7 +206,12 @@
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .audio-control.dark-theme {
+    background-color: #2a2a2a;
+    color: #a18c8c;
   }
   .audio-control:hover {
     background-color: #8c7575;

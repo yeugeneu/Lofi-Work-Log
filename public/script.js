@@ -2,6 +2,7 @@ let accomp = [];
 let timerSeconds = 1500; // 25 minutes default
 let timerInterval;
 let isPaused = false;
+let isLoop = false;
 const audioSources = [
 'https://cdn.pixabay.com/audio/2024/07/31/audio_ca7b04c1bd.mp3',
 'https://cdn.uppbeat.io/audio-files/bd8b8d896868ba0f13070ce660e33d5e/d93ef703791aac925d15efcfe1d91999/59d54f73347de37fe034ad6e791c3446/STREAMING-fluff-qube-main-version-23976-01-55.mp3',
@@ -241,13 +242,19 @@ function playRandomAudio() {
     const randomSource = audioSources[Math.floor(Math.random() * audioSources.length)];
     window.audioPlayer = new Audio(randomSource);
     window.audioPlayer.addEventListener('error', function(e) {
-            console.log(`Error loading audio ${randomSource}, play the next audio file`);
-            nextTrack();
-            window.audioPlayer.play().catch(error => {
+        console.log(`Error loading audio ${randomSource}, play the next audio file`);
+        nextTrack();
+        window.audioPlayer.play().catch(error => {
             console.error('Error playing the next audio:', error);
         });
     });
-    window.audioPlayer.loop = true;
+    window.audioPlayer.addEventListener('ended', function() {
+        nextTrack();
+        window.audioPlayer.play().catch(error => {
+            console.error('Error playing the next audio:', error);
+        });
+    });
+    window.audioPlayer.loop = isLoop;
     window.audioPlayer.volume = 1.0; // 100% volume
 }
 
@@ -282,6 +289,21 @@ function nextTrack() {
         });
     }
 }
+
+function toggleLoop() {    
+    console.log(`Toggling loop to ${!isLoop}`);
+    if (window.audioPlayer) {
+        isLoop = !isLoop;
+        window.audioPlayer.loop = isLoop;  // Fixed: Set the loop property of audioPlayer
+        const loopToggleButton = document.getElementById('loopToggle');
+        if (isLoop) {
+            loopToggleButton.classList.add('dark-theme');
+        } else {
+            loopToggleButton.classList.remove('dark-theme');
+        }
+    }
+}
+
 
 // Start the timer immediately
 window.onload = async function() {
