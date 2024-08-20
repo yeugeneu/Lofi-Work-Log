@@ -112,22 +112,29 @@ function updateAccomplishmentsList() {
     });
 }
 
+function showManualAccomplishment() {
+    showReminder();
+}
+
+
 function clearAccomplishments() {
-    accomp = [];
-    updateAccomplishmentsList();
-    fetch('/clear-accomplishments', {
-        method: 'POST',
-        headers: {
-        'Content-Type': 'application/json',
-        },
-    })
-    .then(response => {
-        console.log({response});
-        response.json();
-    })
-    .catch((error) => {
-        console.error('Error:', error);
-    });
+    if (confirm("Are you sure you want to clear all accomplishments? This action cannot be undone.")) {
+        accomp = [];
+        updateAccomplishmentsList();
+        fetch('/clear-accomplishments', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => {
+            console.log({response});
+            response.json();
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
 }
 
 function updateTimer() {
