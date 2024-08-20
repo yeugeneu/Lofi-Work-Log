@@ -1,3 +1,4 @@
+// Global variables
 let accomp = [];
 let timerSeconds = 1500; // 25 minutes default
 let timerInterval;
@@ -25,6 +26,7 @@ const audioSources = [
 
 const completeSoundFx = 'https://cdn.uppbeat.io/audio-files/d927511931994ce45cf5b95b34e23536/b8acdddc6e37f6b47b0057dbaf3b53af/9c3ce15f497635d0c185b92d34ce902c/STREAMING-level-complete-winner-piano-om-fx-1-00-06.mp3';
 
+// Reminder and Popup Functions
 function showReminder() {
     document.getElementById('reminderPopup').style.display = 'block';
     window.audioPlayer.pause();
@@ -47,6 +49,7 @@ function showReminder() {
     }, { once: true });
 }
 
+// Accomplishment Functions
 function loadAccomplishments() {
     fetch('/accomplishments', {
         method: 'GET',
@@ -144,7 +147,6 @@ function showManualAccomplishment() {
     showReminder();
 }
 
-
 function clearAccomplishments() {
     if (confirm("Are you sure you want to clear all accomplishments? This action cannot be undone.")) {
         accomp = [];
@@ -165,6 +167,22 @@ function clearAccomplishments() {
     }
 }
 
+function exportAccomplishments() {
+    const jsonData = JSON.stringify(accomp, null, 2);
+    const blob = new Blob([jsonData], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'accomplishments.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+
+// Timer Functions
 function updateTimer() {
     if (!isPaused) {
         timerSeconds--;
@@ -238,6 +256,7 @@ function pauseResumeTimer() {
     }
 }
 
+// Audio Functions
 function playRandomAudio() {
     const randomSource = audioSources[Math.floor(Math.random() * audioSources.length)];
     window.audioPlayer = new Audio(randomSource);
