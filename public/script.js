@@ -304,10 +304,33 @@ function toggleLoop() {
     }
 }
 
+function createRain() {
+    const rainContainer = document.querySelector('.rain');
+    const drop = document.createElement('div');
+    drop.classList.add('raindrop');
+
+    const size = Math.random() * 2 + 1;
+    const posX = Math.floor(Math.random() * window.innerWidth);
+    const delay = Math.random() * -20;
+    const duration = Math.random() * 1 + 0.5;
+
+    drop.style.left = posX + 'px';
+    drop.style.width = size + 'px';
+    drop.style.animationDelay = delay + 's';
+    drop.style.animationDuration = duration + 's';
+
+    rainContainer.appendChild(drop);
+
+    setTimeout(() => {
+      drop.remove();
+    }, duration * 1000);
+  }
+
 
 // Start the timer immediately
 window.onload = async function() {
     loadAccomplishments();
     playRandomAudio();
     resetTimer();
+    setInterval(createRain, 20);
 };
