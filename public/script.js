@@ -94,7 +94,6 @@ function submitAccomplishment() {
         .catch((error) => {
             console.error('Error:', error);
         });
-        // updateAccomplishmentsList();
         input.value = '';
     }
 
@@ -105,11 +104,39 @@ function submitAccomplishment() {
 function updateAccomplishmentsList() {
     const list = document.getElementById('accomplishmentsList');
     list.innerHTML = '';
-    accomp.forEach(item => {
+    accomp.forEach((item, index) => {
         const li = document.createElement('li');
         li.innerHTML = `<span>${item.time}</span>: ${item.text}`;
+        
+        const deleteButton = document.createElement('button');
+        deleteButton.id = 'accompDelete';
+        deleteButton.textContent = 'Delete';
+        deleteButton.onclick = () => deleteAccomplishment(index);
+        
+        li.appendChild(deleteButton);
         list.appendChild(li);
     });
+}
+
+function deleteAccomplishment(index) {
+    const accomplishment = accomp[index];
+    if (confirm(`Are you sure you want to delete this accomplishment?\n\n"${accomplishment.text}"`)) {
+        fetch('/delete-accomplishment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ index: index }),
+        })
+        .then(response => response.json())
+        .then(() => {
+            accomp.splice(index, 1);
+            updateAccomplishmentsList();
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
 }
 
 function showManualAccomplishment() {
