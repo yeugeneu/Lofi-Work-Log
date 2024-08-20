@@ -14,14 +14,27 @@ const audioSources = [
 'https://cdn.uppbeat.io/audio-files/95efc2c018c6c8d9e52ae87eb7af0395/5902e72d996e782018052268f98fc1c0/81e4f493a115ada138ff572cdd7590fb/STREAMING-midnight-glow-wooll-main-version-27378-02-40.mp3',
 'https://cdn.uppbeat.io/audio-files/77c5e386047fdaa2fcd9971748957c4a/e0520c207248eb4b9ef9903ee92b58bf/420b276b5719c394fcafe0d0e321f70e/STREAMING-second-stop-cafe-auv-main-version-32211-02-34.mp3',
 'https://cdn.uppbeat.io/audio-files/37f2dfeadea4a411cc6393845b6fb27d/c3e69905621dd45b29cb3f1a425d3006/95a2f61449548a76cfa2ac1b32be3c9b/STREAMING-moonlight-kidcut-main-version-17773-02-31.mp3',
+'https://cdn.uppbeat.io/audio-files/4e7077eceba732f66703a46ca4df3c09/49831497be2da9408ae30a0bf4980a61/5213bc56fcaad0629cea1ad734c79b01/STREAMING-aurora-mum-child-main-version-17287-02-00.mp3',
+'https://cdn.uppbeat.io/audio-files/4e7077eceba732f66703a46ca4df3c09/a777e8c8ce8f57dde9f4804aad6e8d56/29ea10cf12e16c49061e291ed999729b/STREAMING-sleeping-our-noons-away-mum-child-main-version-17274-02-05.mp3',
+'https://cdn.uppbeat.io/audio-files/46731dd22c02a7edc7c194026cc94ae7/2cf03956ec654db8213f14ccaa86635c/593d9b5c48cb05588210eec5152ad584/STREAMING-levitating-indoors-yawnathan-main-version-28205-02-31.mp3',
+'https://cdn.uppbeat.io/audio-files/4e7077eceba732f66703a46ca4df3c09/9ce76d6e17f6766516f41341a87b021d/29784ef530c6f144ccd8a814ecc6dd00/STREAMING-leaving-the-city-mum-child-main-version-17305-02-25.mp3',,
+'https://cdn.uppbeat.io/audio-files/9fea0ae6cc0c520f6b25e8c40681e539/8ea714519bc0db57778367e7ced03193/859d311171e4c1bc8dde64726ed73bc5/STREAMING-blue-was-brightest-haquin-main-version-16924-02-12.mp3',
 'https://t4.bcbits.com/stream/8c775e4fe8dcfaa41ea06cb28d492b24/mp3-128/3735348463?p=0&ts=1723929576&t=eef43c124be6c751d3610aa72b335eadb034a49c&token=1723929576_f3e39563967940bec80c56595b0804294f7c9b55' // ToDO: this one has copyright concern, remove if wish to publish
 ];
+
+const completeSoundFx = 'https://cdn.uppbeat.io/audio-files/d927511931994ce45cf5b95b34e23536/b8acdddc6e37f6b47b0057dbaf3b53af/9c3ce15f497635d0c185b92d34ce902c/STREAMING-level-complete-winner-piano-om-fx-1-00-06.mp3';
 
 function showReminder() {
     document.getElementById('reminderPopup').style.display = 'block';
     window.audioPlayer.pause();
     resetTimer();
-
+    // Play completion sound effect once
+    const completionSound = new Audio(completeSoundFx);
+    completionSound.play().then(() => {
+        completionSound.remove(); // Remove the audio element after playing
+    }).catch(error => {
+        console.error('Error playing completion sound:', error);
+    });
     // Disable interaction with other elements
     document.body.style.pointerEvents = 'none';
     document.getElementById('reminderPopup').style.pointerEvents = 'auto';
