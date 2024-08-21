@@ -395,15 +395,16 @@ function createRain() {
     }
 
     if (rainToggle.classList.contains('dark-theme')) {
+        console.info('❌🌧️');
         rainContainer.style.display = 'none';
         rainToggle.classList.remove('dark-theme');
         window.rainAudio?.pause();
-
         // Stop rain animation
         clearInterval(window.rainInterval);
         // Remove existing raindrops
         rainContainer.innerHTML = '';
     } else {
+        console.info('🌧️🌧️');
         rainContainer.style.display = 'block';
         rainToggle.classList.add('dark-theme');
         window.rainAudio.play();
@@ -422,9 +423,11 @@ function toggleThunder() {
     }
 
     if (thunderToggle.classList.contains('dark-theme')) {
+        console.info('❌⚡');
         thunderToggle.classList.remove('dark-theme');
         window.thunderAudio.pause();
     } else {
+        console.info('⚡⚡');
         thunderToggle.classList.add('dark-theme');
         window.thunderAudio.play();
         
@@ -441,9 +444,11 @@ function toggleSun() {
     const body = document.body;
     
     if (sunToggle.classList.contains('dark-theme')) {
+        console.info('❌☀️');
         sunToggle.classList.remove('dark-theme');
         body.classList.remove('sunny');
     } else {
+        console.info('☀️☀️');
         sunToggle.classList.add('dark-theme');
         body.classList.add('sunny');
     }
