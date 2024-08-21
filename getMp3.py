@@ -1,6 +1,6 @@
 import requests
 
-url = "https://uppbeat.io/browse/collection/inspired-by-studio-ghibli"
+url = "" #URL of the page to scrape
 response = requests.get(url)
 
 import re
@@ -13,7 +13,5 @@ mp3_list = mp3_urls
 
 # Print the list of MP3 URLs (optional, for verification)
 print(f"Found {len(mp3_list)} MP3 URLs:")
-for url in mp3_list:
-    print(url)
+print([f"'{url}'" for url in mp3_list])
 print("")
-
