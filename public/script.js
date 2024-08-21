@@ -62,7 +62,10 @@ const lofiChillSources =
 ['https://cdn.uppbeat.io/audio-files/b959962d120516577fa4ce048c890ca8/5d14eca80d62ec5b1fdb44a77b02578b/55ae2dc9ff76c55af94bc4125b34497e/STREAMING-music-is-pryces-main-version-3083-02-54.mp3', 'https://cdn.uppbeat.io/audio-files/46731dd22c02a7edc7c194026cc94ae7/b75dfe6ceb9f328d103cf87f90d620e0/b5e3126f614c0a69425e0d0125d6d3d1/STREAMING-orimasu-yawnathan-main-version-25832-02-37.mp3', 'https://cdn.uppbeat.io/audio-files/08653f6c4e0880f1e134bb2d18e7aa90/cf14706d7ffb3dd7401082ca0f3db081/275f31379cddca04fcf0c47fbed5acd7/STREAMING-lazy-love-kem-main-version-16052-02-52.mp3', 'https://cdn.uppbeat.io/audio-files/1eaed6f18d69074e114db529f2bd7e46/784347127d73c8e03ef02926a2a935dd/28b79e5e351d8b4883fa17cf798fdc76/STREAMING-poem-soundroll-main-version-4328-02-33.mp3', 'https://cdn.uppbeat.io/audio-files/17f6e3f49a9738f4803e32bebb606b30/5365ac97ea3dbe537344bafb08d92ddb/2fbdb83947e8097559fded152465fc0e/STREAMING-lost-in-you-abbynoise-main-version-27455-02-16.mp3', 'https://cdn.uppbeat.io/audio-files/c636d7c86452449b1203fc0bded83e29/16e5aa11c7c6ccdaaeb225b6afbe9bbb/0086e067b499cc14cd4ff5ce89ee464e/STREAMING-brunch-cafe-matrika-main-version-24053-02-56.mp3', 'https://cdn.uppbeat.io/audio-files/6fe37c64db62e03d698e462645fa35a7/77d0931e10190e0fd9d487b96fbd9429/f57fa77f7b77efa204ee7a95dbef317c/STREAMING-vlog-king-pecan-pie-main-version-20269-02-57.mp3', 'https://cdn.uppbeat.io/audio-files/08653f6c4e0880f1e134bb2d18e7aa90/3a21fd662f93765b0a767e3a4474868c/e3adfc34b28a48a103719b25d11a4a0e/STREAMING-nu-day-kem-main-version-16727-05-05.mp3', 'https://cdn.uppbeat.io/audio-files/1eaed6f18d69074e114db529f2bd7e46/d58cf3731e1a874cc1f79896398ccebb/549f81b52309ed463c7d538c1efc6fe5/STREAMING-all-the-things-you-love-soundroll-main-version-1738-03-15.mp3', 'https://cdn.uppbeat.io/audio-files/b2810913f88b72f580ee1f44ab4ef849/940b59d02223fa8abef4d338f3a14daf/e4c6d7256366228380569f798e61841b/STREAMING-the-cleaner-night-drift-main-version-20732-02-01.mp3'];
 
 const completeSoundFx = 'https://cdn.uppbeat.io/audio-files/d927511931994ce45cf5b95b34e23536/b8acdddc6e37f6b47b0057dbaf3b53af/9c3ce15f497635d0c185b92d34ce902c/STREAMING-level-complete-winner-piano-om-fx-1-00-06.mp3';
-const rainSoundFx = 'https://cdn.uppbeat.io/audio-files/409c63977e186cfad73a8cf2951fde04/d226784cd5cbb25cdc66ac625aaf47b3/bac80055b5287373159a30789e15fd26/STREAMING-heavy-rain-on-roadside-distant-thunder-mechanical-wave-1-02-32.mp3';
+
+const sunSoundFx = '';
+const rainSoundFx = 'https://cdn.uppbeat.io/audio-files/8f7bad86600558899edb9677072692ee/c5a6544ca4d77d8cda881bae989f35de/c9b7d8fbdcf58a6e5a9bb4ee160b9cbb/STREAMING-rain-outside-window-betacut-medium-1-01-00.mp3';
+const thunderSoundFx = 'https://cdn.pixabay.com/audio/2024/02/19/audio_8d25df9ef0.mp3';
 
 // Reminder and Popup Functions
 function showReminder() {
@@ -312,7 +315,7 @@ function playRandomAudio() {
         });
     });
     window.audioPlayer.loop = isLoop;
-    window.audioPlayer.volume = 1.0; // 100% volume
+    window.audioPlayer.volume = 0.8; // 80% volume
 }
 
 function previousTrack() {
@@ -360,7 +363,6 @@ function toggleLoop() {
         }
     }
 }
-
 function createRain() {
     const rainContainer = document.querySelector('.rain');
     const drop = document.createElement('div');
@@ -386,28 +388,70 @@ function createRain() {
   function toggleRain() {
     const rainContainer = document.querySelector('.rain');
     const rainToggle = document.getElementById('rainToggle');
-    if (rainContainer.style.display === 'none') {
-         rainContainer.style.display = 'block';
-         rainToggle.classList.add('dark-theme');
-        // Play rain sound effect
-        if (!window.rainAudio) {
-            window.rainAudio = new Audio(rainSoundFx);
-            window.rainAudio.loop = true;
-        }
-        window.rainAudio.play();
-    } else {
+    if (!window.rainAudio) {
+        window.rainAudio = new Audio(rainSoundFx);
+        window.rainAudio.volume = 0.9;
+        window.rainAudio.loop = true;
+    }
+
+    if (rainToggle.classList.contains('dark-theme')) {
         rainContainer.style.display = 'none';
         rainToggle.classList.remove('dark-theme');
-        window.rainAudio.pause();
+        window.rainAudio?.pause();
+
+        // Stop rain animation
+        clearInterval(window.rainInterval);
+        // Remove existing raindrops
+        rainContainer.innerHTML = '';
+    } else {
+        rainContainer.style.display = 'block';
+        rainToggle.classList.add('dark-theme');
+        window.rainAudio.play();
+
+        // Start rain animation
+        window.rainInterval = setInterval(createRain, 20);
     }
   }
 
+function toggleThunder() {
+    const thunderToggle = document.getElementById('thunderToggle');
+    
+    if (!window.thunderAudio) {
+        window.thunderAudio = new Audio(thunderSoundFx);
+        window.thunderAudio.volume = 0.9;
+    }
+
+    if (thunderToggle.classList.contains('dark-theme')) {
+        thunderToggle.classList.remove('dark-theme');
+        window.thunderAudio.pause();
+    } else {
+        thunderToggle.classList.add('dark-theme');
+        window.thunderAudio.play();
+        
+        // Flash effect
+        document.body.style.backgroundColor = 'white';
+        setTimeout(() => {
+            document.body.style.backgroundColor = '';
+        }, 100);
+    }
+}
+
+function toggleSun() {
+    const sunToggle = document.getElementById('sunToggle');
+    const body = document.body;
+    
+    if (sunToggle.classList.contains('dark-theme')) {
+        sunToggle.classList.remove('dark-theme');
+        body.classList.remove('sunny');
+    } else {
+        sunToggle.classList.add('dark-theme');
+        body.classList.add('sunny');
+    }
+}
 
 // Start the timer immediately
 window.onload = async function() {
     loadAccomplishments();
     playRandomAudio();
-    toggleRain();
     resetTimer();
-    setInterval(createRain, 20);
 };
