@@ -241,7 +241,9 @@ function exportAccomplishments() {
     
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'accomplishments.json';
+    const now = new Date();
+    const dateTime = now.toISOString().replace(/[:.]/g, '-').slice(0, -5);
+    a.download = `accomplishments-${dateTime}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
