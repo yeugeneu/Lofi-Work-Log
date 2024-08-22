@@ -34,11 +34,19 @@
       <textarea id="accomplishmentInput" placeholder="Enter your accomplishments..."></textarea>
       <button onclick="submitAccomplishment()">Submit</button>
     </div>
-
+    <div id="audio-source-selector">
+      <div>Choose your Vibe</div>
+      <select id="audioSourceDropdown" onchange="changeAudioSource()">
+        <option value="default">Default Music</option>
+        <option value="ghibliInspired">Ghibli Inspired Piano</option>
+        <option value="lazyLofi">Lazy Lofi</option>
+        <option value="lofiChill">Lo-Fi Chill</option>
+      </select>
+    </div>
     <div id="accomplishments">
       <h2>Today's Accomplishments</h2>
       <ul id="accomplishmentsList"></ul>
-      <button class="timer-control" onclick="showManualAccomplishment()">Add Accomplishment</button>
+      <button class="timer-control" onclick="showReminder()">Add Accomplishment</button>
       <button class="timer-control" onclick="clearAccomplishments()">Clear All</button>
       <button class="timer-control" onclick="exportAccomplishments()">Export Accomplishments</button>
     </div>
