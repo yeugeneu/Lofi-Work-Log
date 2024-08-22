@@ -44,12 +44,15 @@
         <option value="jazzBeats">Jazz Beats</option>
       </select>
     </div>
+    
     <div id="accomplishments">
       <h2>Today's Accomplishments</h2>
+      <button class="accomplishment-control" onclick="showReminder()">Add Accomplishment</button>
+      <button class="accomplishment-control" onclick="addBreak()">Add Break</button>
+      <button class="accomplishment-control" onclick="clearAccomplishments()">Clear All</button>
+      <button class="accomplishment-control" onclick="exportAccomplishments()">Export File</button>
       <ul id="accomplishmentsList"></ul>
-      <button class="timer-control" onclick="showReminder()">Add Accomplishment</button>
-      <button class="timer-control" onclick="clearAccomplishments()">Clear All</button>
-      <button class="timer-control" onclick="exportAccomplishments()">Export Accomplishments</button>
+
     </div>
 
     <div class="vinyl-player">

@@ -46,7 +46,7 @@
     resize: none;
     background-color: #fff9f9;
   }
-  .popup button, .timer-control {
+  .popup button, .timer-control, .accomplishment-control {
     background-color: #a18c8c;
     color: #ffffff;
     border: none;
@@ -60,7 +60,7 @@
     border-radius: 5px;
     transition: background-color 0.3s ease;
   }
-  .popup button:hover, .timer-control:hover {
+  .popup button:hover, .timer-control:hover, .accomplishment-control:hover {
     background-color: #8c7575;
   }
 
@@ -103,7 +103,7 @@
   }
   #accomplishments h2 {
     color: #6d4e4e;
-    text-align: center;
+    text-align: left;
   }
   #accomplishmentsList {
     list-style-type: none;
@@ -213,7 +213,9 @@
     border-radius: 5px;
     font-size: 16px;
   }
-  .timer-control {
+  
+  
+  .timer-control, .accomplishment-control {
     margin: 5px;
     font-size: 14px;
     padding: 8px 15px;
@@ -319,3 +321,4 @@
       transform: translateY(100vh);
     }
   }
+
