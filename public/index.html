@@ -9,7 +9,13 @@
     <script type="text/javascript" src="script.js"></script>
   </head>
   <body>
+    <div class="sun"></div>
     <div class="rain"></div>
+    <div class="weather-controls">
+      <button class="weather-control" id="sunToggle" onclick="toggleSun()"><i class="fas fa-sun"></i></button>
+      <button class="weather-control" id="rainToggle" onclick="toggleRain()"><i class="fas fa-cloud-rain"></i></button>
+      <button class="weather-control" id="thunderToggle" onclick="toggleThunder()"><i class="fas fa-bolt"></i></button>
+    </div>
     <div id="timer-container">
       <div id="timer">00:25:00</div>
       <div id="timer-controls">

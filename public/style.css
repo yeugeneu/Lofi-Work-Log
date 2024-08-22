@@ -107,6 +107,45 @@
   #accomplishmentsList button#accompDelete:hover {
     background-color: #c9302c;
   }
+  .weather-controls {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
+  }
+
+  .weather-control {
+    background-color: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+
+  .weather-control.dark-theme {
+    background-color: rgba(0, 0, 0, 0.6);
+  }
+
+  .weather-control.dark-theme i {
+    color: #a18c8c;
+  }
+
+  .weather-control:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+  }
+
+  .weather-control i {
+    color: #fff;
+    font-size: 20px;
+  }
+  
   #timer-container {
     display: flex;
     flex-direction: column;
