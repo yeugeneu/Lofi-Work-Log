@@ -63,6 +63,39 @@
   .popup button:hover, .timer-control:hover {
     background-color: #8c7575;
   }
+
+  #audio-source-selector {
+    text-align: center;
+    width: 100%;
+    max-width: 300px;
+  }
+
+  #audio-source-selector div {
+    color: #6d4e4e;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+
+  #audioSourceDropdown {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #d3b7b7;
+    border-radius: 5px;
+    background-color: #fff9f9;
+    color: #6d4e4e;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.3s ease;
+  }
+
+  #audioSourceDropdown:hover, #audioSourceDropdown:focus {
+    border-color: #a18c8c;
+  }
+
+  #audioSourceDropdown option {
+    background-color: #fff9f9;
+    color: #6d4e4e;
+  }
   #accomplishments {
     margin-top: 20px;
     width: 100%;

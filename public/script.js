@@ -4,7 +4,8 @@ let timerSeconds = 1500; // 25 minutes default
 let timerInterval;
 let isPaused = false;
 let isLoop = false;
-const audioSources = [
+
+const defaultSources = [
 'https://cdn.pixabay.com/audio/2024/07/31/audio_ca7b04c1bd.mp3',
 'https://cdn.uppbeat.io/audio-files/bd8b8d896868ba0f13070ce660e33d5e/d93ef703791aac925d15efcfe1d91999/59d54f73347de37fe034ad6e791c3446/STREAMING-fluff-qube-main-version-23976-01-55.mp3',
 'https://cdn.uppbeat.io/audio-files/08653f6c4e0880f1e134bb2d18e7aa90/3a21fd662f93765b0a767e3a4474868c/e3adfc34b28a48a103719b25d11a4a0e/STREAMING-nu-day-kem-main-version-16727-05-05.mp3',
@@ -58,8 +59,20 @@ const lazyLofiSources = [
 'https://cdn.uppbeat.io/audio-files/b0a759f14be8e2cb5831ec764ec690dc/6a051ddb9bbb47994534bd4752914dea/3b8ac97d9ca4a47ddc44d6bdcdfd617c/STREAMING-black-coffee-all-good-folks-main-version-3878-01-19.mp3'
 ];
 
-const lofiChillSources = 
-['https://cdn.uppbeat.io/audio-files/b959962d120516577fa4ce048c890ca8/5d14eca80d62ec5b1fdb44a77b02578b/55ae2dc9ff76c55af94bc4125b34497e/STREAMING-music-is-pryces-main-version-3083-02-54.mp3', 'https://cdn.uppbeat.io/audio-files/46731dd22c02a7edc7c194026cc94ae7/b75dfe6ceb9f328d103cf87f90d620e0/b5e3126f614c0a69425e0d0125d6d3d1/STREAMING-orimasu-yawnathan-main-version-25832-02-37.mp3', 'https://cdn.uppbeat.io/audio-files/08653f6c4e0880f1e134bb2d18e7aa90/cf14706d7ffb3dd7401082ca0f3db081/275f31379cddca04fcf0c47fbed5acd7/STREAMING-lazy-love-kem-main-version-16052-02-52.mp3', 'https://cdn.uppbeat.io/audio-files/1eaed6f18d69074e114db529f2bd7e46/784347127d73c8e03ef02926a2a935dd/28b79e5e351d8b4883fa17cf798fdc76/STREAMING-poem-soundroll-main-version-4328-02-33.mp3', 'https://cdn.uppbeat.io/audio-files/17f6e3f49a9738f4803e32bebb606b30/5365ac97ea3dbe537344bafb08d92ddb/2fbdb83947e8097559fded152465fc0e/STREAMING-lost-in-you-abbynoise-main-version-27455-02-16.mp3', 'https://cdn.uppbeat.io/audio-files/c636d7c86452449b1203fc0bded83e29/16e5aa11c7c6ccdaaeb225b6afbe9bbb/0086e067b499cc14cd4ff5ce89ee464e/STREAMING-brunch-cafe-matrika-main-version-24053-02-56.mp3', 'https://cdn.uppbeat.io/audio-files/6fe37c64db62e03d698e462645fa35a7/77d0931e10190e0fd9d487b96fbd9429/f57fa77f7b77efa204ee7a95dbef317c/STREAMING-vlog-king-pecan-pie-main-version-20269-02-57.mp3', 'https://cdn.uppbeat.io/audio-files/08653f6c4e0880f1e134bb2d18e7aa90/3a21fd662f93765b0a767e3a4474868c/e3adfc34b28a48a103719b25d11a4a0e/STREAMING-nu-day-kem-main-version-16727-05-05.mp3', 'https://cdn.uppbeat.io/audio-files/1eaed6f18d69074e114db529f2bd7e46/d58cf3731e1a874cc1f79896398ccebb/549f81b52309ed463c7d538c1efc6fe5/STREAMING-all-the-things-you-love-soundroll-main-version-1738-03-15.mp3', 'https://cdn.uppbeat.io/audio-files/b2810913f88b72f580ee1f44ab4ef849/940b59d02223fa8abef4d338f3a14daf/e4c6d7256366228380569f798e61841b/STREAMING-the-cleaner-night-drift-main-version-20732-02-01.mp3'];
+const lofiChillSources = [
+    'https://cdn.uppbeat.io/audio-files/b959962d120516577fa4ce048c890ca8/5d14eca80d62ec5b1fdb44a77b02578b/55ae2dc9ff76c55af94bc4125b34497e/STREAMING-music-is-pryces-main-version-3083-02-54.mp3', 
+    'https://cdn.uppbeat.io/audio-files/46731dd22c02a7edc7c194026cc94ae7/b75dfe6ceb9f328d103cf87f90d620e0/b5e3126f614c0a69425e0d0125d6d3d1/STREAMING-orimasu-yawnathan-main-version-25832-02-37.mp3', 
+    'https://cdn.uppbeat.io/audio-files/08653f6c4e0880f1e134bb2d18e7aa90/cf14706d7ffb3dd7401082ca0f3db081/275f31379cddca04fcf0c47fbed5acd7/STREAMING-lazy-love-kem-main-version-16052-02-52.mp3', 
+    'https://cdn.uppbeat.io/audio-files/1eaed6f18d69074e114db529f2bd7e46/784347127d73c8e03ef02926a2a935dd/28b79e5e351d8b4883fa17cf798fdc76/STREAMING-poem-soundroll-main-version-4328-02-33.mp3', 
+    'https://cdn.uppbeat.io/audio-files/17f6e3f49a9738f4803e32bebb606b30/5365ac97ea3dbe537344bafb08d92ddb/2fbdb83947e8097559fded152465fc0e/STREAMING-lost-in-you-abbynoise-main-version-27455-02-16.mp3', 
+    'https://cdn.uppbeat.io/audio-files/c636d7c86452449b1203fc0bded83e29/16e5aa11c7c6ccdaaeb225b6afbe9bbb/0086e067b499cc14cd4ff5ce89ee464e/STREAMING-brunch-cafe-matrika-main-version-24053-02-56.mp3', 
+    'https://cdn.uppbeat.io/audio-files/6fe37c64db62e03d698e462645fa35a7/77d0931e10190e0fd9d487b96fbd9429/f57fa77f7b77efa204ee7a95dbef317c/STREAMING-vlog-king-pecan-pie-main-version-20269-02-57.mp3', 
+    'https://cdn.uppbeat.io/audio-files/08653f6c4e0880f1e134bb2d18e7aa90/3a21fd662f93765b0a767e3a4474868c/e3adfc34b28a48a103719b25d11a4a0e/STREAMING-nu-day-kem-main-version-16727-05-05.mp3', 
+    'https://cdn.uppbeat.io/audio-files/1eaed6f18d69074e114db529f2bd7e46/d58cf3731e1a874cc1f79896398ccebb/549f81b52309ed463c7d538c1efc6fe5/STREAMING-all-the-things-you-love-soundroll-main-version-1738-03-15.mp3', 
+    'https://cdn.uppbeat.io/audio-files/b2810913f88b72f580ee1f44ab4ef849/940b59d02223fa8abef4d338f3a14daf/e4c6d7256366228380569f798e61841b/STREAMING-the-cleaner-night-drift-main-version-20732-02-01.mp3'
+];
+
+let audioSources = defaultSources;
 
 const completeSoundFx = 'https://cdn.uppbeat.io/audio-files/d927511931994ce45cf5b95b34e23536/b8acdddc6e37f6b47b0057dbaf3b53af/9c3ce15f497635d0c185b92d34ce902c/STREAMING-level-complete-winner-piano-om-fx-1-00-06.mp3';
 
@@ -184,10 +197,6 @@ function deleteAccomplishment(index) {
     }
 }
 
-function showManualAccomplishment() {
-    showReminder();
-}
-
 function clearAccomplishments() {
     if (confirm('Are you sure you want to clear all accomplishments? This action cannot be undone.')) {
         accomp = [];
@@ -299,7 +308,7 @@ function pauseResumeTimer() {
 
 // Audio Functions
 function playRandomAudio() {
-    const randomSource = lofiChillSources[Math.floor(Math.random() * lofiChillSources.length)];
+    const randomSource = audioSources[Math.floor(Math.random() * audioSources.length)];
     window.audioPlayer = new Audio(randomSource);
     window.audioPlayer.addEventListener('error', function(e) {
         console.log(`Error loading audio ${randomSource}, play the next audio file`);
@@ -320,9 +329,9 @@ function playRandomAudio() {
 
 function previousTrack() {
     if (window.audioPlayer) {
-        const currentIndex = lofiChillSources.indexOf(window.audioPlayer.src);
-        const newIndex = (currentIndex - 1 + lofiChillSources.length) % lofiChillSources.length;
-        window.audioPlayer.src = lofiChillSources[newIndex];
+        const currentIndex = audioSources.indexOf(window.audioPlayer.src);
+        const newIndex = (currentIndex - 1 + audioSources.length) % audioSources.length;
+        window.audioPlayer.src = audioSources[newIndex];
         window.audioPlayer.play()
         .then(()=> {
             document.getElementById('playPauseIcon').className = 'fas fa-pause';
@@ -336,9 +345,9 @@ function previousTrack() {
 
 function nextTrack() {
     if (window.audioPlayer) {
-        const currentIndex = lofiChillSources.indexOf(window.audioPlayer.src);
-        const newIndex = (currentIndex + 1) % lofiChillSources.length;
-        window.audioPlayer.src = lofiChillSources[newIndex];
+        const currentIndex = audioSources.indexOf(window.audioPlayer.src);
+        const newIndex = (currentIndex + 1) % audioSources.length;
+        window.audioPlayer.src = audioSources[newIndex];
         window.audioPlayer.play()
         .then(()=> {
             document.getElementById('playPauseIcon').className = 'fas fa-pause';
@@ -349,6 +358,34 @@ function nextTrack() {
         });
     }
 }
+
+function changeAudioSource() {
+    const selectedSource = document.getElementById('audioSourceDropdown').value;
+    
+    switch(selectedSource) {
+        case 'ghibliInspired':
+            audioSources = ghibliInspiredSources;
+            break;
+        case 'lazyLofi':
+            audioSources = lazyLofiSources;
+            break;
+        case 'lofiChill':
+            audioSources = lofiChillSources;
+            break;
+        default:
+            audioSources = defaultSources;
+            break;
+    }
+    
+    // If audio is currently playing, switch to the first track of the new source
+    if (window.audioPlayer && !window.audioPlayer.paused) {
+        window.audioPlayer.src = audioSources[0];
+        window.audioPlayer.play().catch(error => {
+            console.error('Error playing new audio source:', error);
+        });
+    }
+}
+
 
 function toggleLoop() {    
     console.log(`Toggling loop to ${!isLoop}`);
