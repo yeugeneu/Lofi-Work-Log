@@ -4,6 +4,7 @@ let timerSeconds = 1500; // 25 minutes default
 let timerInterval;
 let isPaused = false;
 let isLoop = false;
+let isDarkTheme = false;
 
 const defaultSources = [
     'https://cdn.pixabay.com/audio/2024/07/31/audio_ca7b04c1bd.mp3',
@@ -101,6 +102,7 @@ const thunderSoundFx = 'https://cdn.pixabay.com/audio/2024/02/19/audio_8d25df9ef
 function showReminder() {
     document.getElementById('reminderPopup').style.display = 'block';
     window.audioPlayer.pause();
+    toggleTheme();
     resetTimer();
     // Play completion sound effect once
     const completionSound = new Audio(completeSoundFx);
@@ -121,6 +123,10 @@ function showReminder() {
 }
 
 // Accomplishment Functions
+function toggleTheme() {
+    document.body.classList.toggle('dark-theme');
+}
+
 function loadAccomplishments() {
     fetch('/accomplishments', {
         method: 'GET',
@@ -242,7 +248,8 @@ function exportAccomplishments() {
     const a = document.createElement('a');
     a.href = url;
     const now = new Date();
-    const dateTime = now.toISOString().replace(/[:.]/g, '-').slice(0, -5);
+    var tzoffset = now.getTimezoneOffset() * 60000; //offset in milliseconds
+    var dateTime = (new Date(Date.now() - tzoffset)).toISOString();
     a.download = `accomplishments-${dateTime}.json`;
     document.body.appendChild(a);
     a.click();

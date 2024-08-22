@@ -17,6 +17,19 @@
     align-items: center;
     min-height: 100vh;
   }
+  body.dark-theme {
+    background-color: #333;
+    color: #fff;
+  }
+  
+  .dark-theme .timer-control,
+  .dark-theme .accomplishment-control,
+  .dark-theme .weather-control,
+  .dark-theme .audio-control {
+    background-color: #555;
+    color: #fff;
+  }
+  
   .popup {
     display: none;
     position: fixed;
@@ -32,9 +45,16 @@
     z-index: 1000;
     border: 2px solid #d3b7b7;
   }
+  .dark-theme .popup {
+    background-color: #444;
+    border-color: #666;
+  }
   .popup h1 {
     margin-top: 0;
     color: #6d4e4e;
+  }
+  .dark-theme .popup h1 {
+    color: #ccc;
   }
   .popup textarea {
     width: 100%;
@@ -45,6 +65,11 @@
     font-family: 'Roboto Mono', monospace;
     resize: none;
     background-color: #fff9f9;
+  }
+  .dark-theme .popup textarea {
+    background-color: #555;
+    color: #fff;
+    border-color: #777;
   }
   .popup button, .timer-control, .accomplishment-control {
     background-color: #a18c8c;
@@ -72,8 +97,9 @@
 
   #audio-source-selector div {
     color: #6d4e4e;
-    margin-bottom: 5px;
-    font-weight: bold;
+  }
+  .dark-theme #audio-source-selector div {
+    color: #ccc;
   }
 
   #audioSourceDropdown {
@@ -87,6 +113,11 @@
     outline: none;
     transition: border-color 0.3s ease;
   }
+  .dark-theme #audioSourceDropdown {
+    background-color: #555;
+    color: #fff;
+    border-color: #777;
+  }
 
   #audioSourceDropdown:hover, #audioSourceDropdown:focus {
     border-color: #a18c8c;
@@ -96,6 +127,10 @@
     background-color: #fff9f9;
     color: #6d4e4e;
   }
+  .dark-theme #audioSourceDropdown option {
+    background-color: #555;
+    color: #fff;
+  }
   #accomplishments {
     margin-top: 20px;
     width: 100%;
@@ -104,6 +139,9 @@
   #accomplishments h2 {
     color: #6d4e4e;
     text-align: left;
+  }
+  .dark-theme #accomplishments h2 {
+    color: #ccc;
   }
   #accomplishmentsList {
     list-style-type: none;
@@ -118,12 +156,20 @@
     border-left: 4px solid #a18c8c;
     transition: transform 0.2s ease;
   }
+  .dark-theme #accomplishmentsList li {
+    background-color: #444;
+    box-shadow: 0 2px 10px #ffffff0d;
+    border-left-color: #777;
+  }
   #accomplishmentsList li:hover {
     transform: translateX(5px);
   }
   #accomplishmentsList li span {
     font-weight: bold;
     color: #8c7575;
+  }
+  .dark-theme #accomplishmentsList li span {
+    color: #ccc;
   }
   #accomplishmentsList button#accompDelete {
     background-color: #d9534f;
@@ -192,6 +238,10 @@
     margin-bottom: 30px;
     transition: all 0.3s ease;
   }
+  .dark-theme #timer-container {
+    background-color: #555;
+    box-shadow: 0 4px 20px #ffffff26;
+  }
   #timer-container:hover {
     transform: scale(1.05);
   }
@@ -199,6 +249,9 @@
     font-size: 72px;
     margin-bottom: 20px;
     text-shadow: 2px 2px 4px #00000033;
+  }
+  .dark-theme #timer {
+    text-shadow: 2px 2px 4px #ffffff33;
   }
   #timer-controls {
     display: flex;
@@ -213,7 +266,10 @@
     border-radius: 5px;
     font-size: 16px;
   }
-  
+  .dark-theme .custom-time-input {
+    background-color: #777;
+    color: #fff;
+  }
   
   .timer-control, .accomplishment-control {
     margin: 5px;
@@ -236,6 +292,10 @@
     align-items: center;
     overflow: hidden;
   }
+  .dark-theme .vinyl-player {
+    background-color: #222;
+    box-shadow: 0 0 20px #ffffff33;
+  }
   .vinyl-record {
     width: 80%;
     height: 80%;
@@ -256,6 +316,10 @@
     align-items: center;
     font-size: 12px;
     color: #4a4a4a;
+  }
+  .dark-theme .vinyl-label {
+    background-color: #777;
+    color: #222;
   }
   @keyframes spin {
     0% { transform: rotate(0deg); }
@@ -310,7 +374,9 @@
     width: 2px;
     height: 15px;
     background-color: #aec2e0cc;
-    animation: fall linear infinite;
+  }
+  .dark-theme .raindrop {
+    background-color: #5a7cb0cc;
   }
 
   @keyframes fall {
@@ -321,4 +387,3 @@
       transform: translateY(100vh);
     }
   }
-
