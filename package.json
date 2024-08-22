@@ -4,6 +4,8 @@
   "description": "Pomodoro Clock with lofi music to record your daily accomplishments",
   "main": "index.js",
   "scripts": {
+    "start": "node server.js",
+    "test": "npx playwright test",
     "dev": "node server.js"
   },
   "repository": {
