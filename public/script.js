@@ -102,8 +102,8 @@ const thunderSoundFx = 'https://cdn.pixabay.com/audio/2024/02/19/audio_8d25df9ef
 function showReminder() {
     document.getElementById('reminderPopup').style.display = 'block';
     window.audioPlayer.pause();
-    toggleTheme();
     resetTimer();
+    toggleTheme();
     // Play completion sound effect once
     const completionSound = new Audio(completeSoundFx);
     completionSound.play().then(() => {
@@ -143,6 +143,10 @@ function loadAccomplishments() {
         updateAccomplishmentsList();
     })
     .catch((error) => console.error('Error loading JSON file', error));
+}
+function closeReminderPopup() {
+    document.getElementById('reminderPopup').style.display = 'none';
+    document.body.style.pointerEvents = 'auto';
 }
 
 function submitAccomplishment() {
@@ -288,6 +292,7 @@ function resetTimer() {
     document.getElementById('pauseResume').textContent = 'Play';
     document.getElementById('playPauseIcon').className = 'fa fa-play';
     timerInterval = setInterval(updateTimer, 1000);
+    document.body.classList.remove('dark-theme');
 }
 
 function customizeTimer() {

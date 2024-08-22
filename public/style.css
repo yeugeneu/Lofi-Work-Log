@@ -49,6 +49,15 @@
     background-color: #444;
     border-color: #666;
   }
+  .close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+  }
   .popup h1 {
     margin-top: 0;
     color: #6d4e4e;

@@ -29,10 +29,12 @@
     </div>
 
     <div class="popup" id="reminderPopup">
+      <button class="close-button" onclick="closeReminderPopup()">&#x2715;</button>
       <h1>Time for a Break!</h1>
       <p>What have you accomplished in the last session?</p>
       <textarea id="accomplishmentInput" placeholder="Enter your accomplishments..."></textarea>
       <button onclick="submitAccomplishment()">Submit</button>
+      <button>Submit & Start Break</button>
     </div>
     <div id="audio-source-selector">
       <div>Choose your Vibe</div>
