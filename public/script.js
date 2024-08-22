@@ -415,8 +415,6 @@ function createRain() {
   }
 
 function toggleThunder() {
-    const thunderToggle = document.getElementById('thunderToggle');
-    
     if (!window.thunderAudio) {
         window.thunderAudio = new Audio(thunderSoundFx);
         window.thunderAudio.volume = 0.9;
@@ -430,12 +428,6 @@ function toggleThunder() {
         console.info('⚡⚡');
         thunderToggle.classList.add('dark-theme');
         window.thunderAudio.play();
-        
-        // Flash effect
-        document.body.style.backgroundColor = 'white';
-        setTimeout(() => {
-            document.body.style.backgroundColor = '';
-        }, 100);
     }
 }
 
