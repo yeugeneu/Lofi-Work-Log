@@ -383,6 +383,7 @@
     width: 2px;
     height: 15px;
     background-color: #aec2e0cc;
+    animation: fall linear infinite;
   }
   .dark-theme .raindrop {
     background-color: #5a7cb0cc;
