@@ -116,10 +116,12 @@ function showReminder() {
     document.getElementById('reminderPopup').style.pointerEvents = 'auto';
 
     // Add event listener to re-enable interactions when popup is closed
-    document.getElementById('reminderPopup').querySelector('button').addEventListener('click', function() {
-        document.body.style.pointerEvents = 'auto';
-        document.getElementById('reminderPopup').style.display = 'none';
-    }, { once: true });
+    document.getElementById('reminderPopup').querySelectorAll('button').forEach(button => {
+        button.addEventListener('click', function() {
+            document.body.style.pointerEvents = 'auto';
+            document.getElementById('reminderPopup').style.display = 'none';
+        }, { once: true });
+    });
 }
 
 // Accomplishment Functions
@@ -158,8 +160,8 @@ function submitAccomplishment() {
 
         // First, let's create the data to be sent
         const newAccomplishment = {
-        text: accomplishment,
-        time: timestamp
+            text: accomplishment,
+            time: timestamp
         };
         
         // server side POST method
@@ -292,7 +294,7 @@ function resetTimer() {
     document.getElementById('pauseResume').textContent = 'Play';
     document.getElementById('playPauseIcon').className = 'fa fa-play';
     timerInterval = setInterval(updateTimer, 1000);
-    document.body.classList.remove('dark-theme');
+    document.body.classList.toggle('dark-theme');
 }
 
 function customizeTimer() {
@@ -305,7 +307,7 @@ function customizeTimer() {
         if (timerSeconds > 0) {
             clearInterval(timerInterval);
             timerInterval = setInterval(updateTimer, 1000);
-            // isPaused = false;
+            
             document.getElementById('pauseResume').textContent = 'Play';
             document.getElementById('playPauseIcon').className = 'fas fa-play';
             document.getElementById('timer').textContent = `${formatTime(hours,minutes,seconds)}`;
@@ -425,7 +427,7 @@ function toggleLoop() {
     console.log(`Toggling loop to ${!isLoop}`);
     if (window.audioPlayer) {
         isLoop = !isLoop;
-        window.audioPlayer.loop = isLoop;  // Fixed: Set the loop property of audioPlayer
+        window.audioPlayer.loop = isLoop; 
         const loopToggleButton = document.getElementById('loopToggle');
         if (isLoop) {
             loopToggleButton.classList.add('dark-theme');
