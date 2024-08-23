@@ -395,22 +395,27 @@ function nextTrack() {
 
 function changeAudioSource() {
     const selectedSource = document.getElementById('audioSourceDropdown').value;
-    
+    const vinylLabel = document.getElementById('vinyl-label-text');
     switch(selectedSource) {
         case 'ghibliInspired':
             audioSources = ghibliInspiredSources;
+            vinylLabel.textContent = 'Ghibli';
             break;
         case 'lazyLofi':
             audioSources = lazyLofiSources;
+            vinylLabel.textContent = 'Lazy';
             break;
         case 'lofiChill':
             audioSources = lofiChillSources;
+            vinylLabel.textContent = 'Lo-Fi';
             break;
         case 'jazzBeats':
             audioSources = jazzBeatsSources;
+            vinylLabel.textContent = 'Jazz';
             break;
         default:
             audioSources = defaultSources;
+            vinylLabel.textContent = 'Lo-Fi';
             break;
     }
     
@@ -464,7 +469,7 @@ function createRain() {
     const rainToggle = document.getElementById('rainToggle');
     if (!window.rainAudio) {
         window.rainAudio = new Audio(rainSoundFx);
-        window.rainAudio.volume = 0.9;
+        window.rainAudio.volume = 0.5;
         window.rainAudio.loop = true;
     }
 
@@ -491,7 +496,7 @@ function createRain() {
 function toggleThunder() {
     if (!window.thunderAudio) {
         window.thunderAudio = new Audio(thunderSoundFx);
-        window.thunderAudio.volume = 0.9;
+        window.thunderAudio.volume = 0.7;
     }
 
     if (thunderToggle.classList.contains('dark-theme')) {

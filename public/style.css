@@ -316,8 +316,8 @@
     animation: spin 5s linear infinite;
   }
   .vinyl-label {
-    width: 30%;
-    height: 30%;
+    width: 40%;
+    height: 40%;
     background-color: #d3b7b7;
     border-radius: 50%;
     display: flex;
