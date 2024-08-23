@@ -186,6 +186,7 @@ function submitAccomplishment() {
 
     document.getElementById('reminderPopup').style.display = 'none';
     resetTimer();
+    toggleTheme();
 }
 
 function updateAccomplishmentsList() {
@@ -294,7 +295,7 @@ function resetTimer() {
     document.getElementById('pauseResume').textContent = 'Play';
     document.getElementById('playPauseIcon').className = 'fa fa-play';
     timerInterval = setInterval(updateTimer, 1000);
-    document.body.classList.toggle('dark-theme');
+    // document.body.classList.toggle('dark-theme');
 }
 
 function customizeTimer() {
