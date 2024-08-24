@@ -94,13 +94,13 @@ let audioSources = defaultSources;
 
 const completeSoundFx = 'https://cdn.uppbeat.io/audio-files/d927511931994ce45cf5b95b34e23536/b8acdddc6e37f6b47b0057dbaf3b53af/9c3ce15f497635d0c185b92d34ce902c/STREAMING-level-complete-winner-piano-om-fx-1-00-06.mp3';
 
-const sunSoundFx = '';
+const sunSoundFx = 'https://cdn.uppbeat.io/audio-files/44fbdf1792559839ac2aaf16cfa6b689/0b1eaccdf444f42aae30a96da4e5250c/7526d6c2f348547b4dbb742a0f1fc776/STREAMING-cuckoo-raven-bird-call-ambience-ivo-vicic-1-01-41.mp3';
 const rainSoundFx = 'https://cdn.uppbeat.io/audio-files/8f7bad86600558899edb9677072692ee/c5a6544ca4d77d8cda881bae989f35de/c9b7d8fbdcf58a6e5a9bb4ee160b9cbb/STREAMING-rain-outside-window-betacut-medium-1-01-00.mp3';
 const thunderSoundFx = 'https://cdn.pixabay.com/audio/2024/02/19/audio_8d25df9ef0.mp3';
 
 // Reminder and Popup Functions
 function showReminder() {
-    document.getElementById('reminderPopup').style.display = 'block';
+    document.querySelector('#reminderPopup').style.display = 'block';
     window.audioPlayer.pause();
     resetTimer();
     toggleTheme();
@@ -113,13 +113,13 @@ function showReminder() {
     });
     // Disable interaction with other elements
     document.body.style.pointerEvents = 'none';
-    document.getElementById('reminderPopup').style.pointerEvents = 'auto';
+    document.querySelector('#reminderPopup').style.pointerEvents = 'auto';
 
     // Add event listener to re-enable interactions when popup is closed
-    document.getElementById('reminderPopup').querySelectorAll('button').forEach(button => {
+    document.querySelector('#reminderPopup').querySelectorAll('button').forEach(button => {
         button.addEventListener('click', function() {
             document.body.style.pointerEvents = 'auto';
-            document.getElementById('reminderPopup').style.display = 'none';
+            document.querySelector('#reminderPopup').style.display = 'none';
         }, { once: true });
     });
 }
@@ -147,12 +147,12 @@ function loadAccomplishments() {
     .catch((error) => console.error('Error loading JSON file', error));
 }
 function closeReminderPopup() {
-    document.getElementById('reminderPopup').style.display = 'none';
+    document.querySelector('#reminderPopup').style.display = 'none';
     document.body.style.pointerEvents = 'auto';
 }
 
 function submitAccomplishment() {
-    const input = document.getElementById('accomplishmentInput');
+    const input = document.querySelector('#accomplishmentInput');
     const accomplishment = input.value.trim();
 
     if (accomplishment) {
@@ -184,13 +184,13 @@ function submitAccomplishment() {
         input.value = '';
     }
 
-    document.getElementById('reminderPopup').style.display = 'none';
+    document.querySelector('#reminderPopup').style.display = 'none';
     resetTimer();
     toggleTheme();
 }
 
 function updateAccomplishmentsList() {
-    const list = document.getElementById('accomplishmentsList');
+    const list = document.querySelector('#accomplishmentsList');
     list.innerHTML = '';
     accomp.forEach((item, index) => {
         const li = document.createElement('li');
@@ -278,30 +278,30 @@ function updateTimer() {
         const minutes = Math.floor((timerSeconds % 3600) / 60);
         const seconds = timerSeconds % 60;
         const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        document.getElementById('timer').textContent = timeString;
+        document.querySelector('#timer').textContent = timeString;
     }
 }
 
 function resetTimer() {
     clearInterval(timerInterval);
     timerSeconds = 1500; // Reset to 1 hour
-    document.getElementById('timer').textContent = '00:25:00';
-    document.getElementById('custom-hours').value = 0;
-    document.getElementById('custom-minutes').value = 25;
-    document.getElementById('custom-seconds').value = 0;
+    document.querySelector('#timer').textContent = '00:25:00';
+    document.querySelector('#custom-hours').value = 0;
+    document.querySelector('#custom-minutes').value = 25;
+    document.querySelector('#custom-seconds').value = 0;
 
     isPaused = true;
     window.audioPlayer.pause();
-    document.getElementById('pauseResume').textContent = 'Play';
-    document.getElementById('playPauseIcon').className = 'fa fa-play';
+    document.querySelector('#pauseResume').textContent = 'Play';
+    document.querySelector('#playPauseIcon').className = 'fa fa-play';
     timerInterval = setInterval(updateTimer, 1000);
     // document.body.classList.toggle('dark-theme');
 }
 
 function customizeTimer() {
-    const hours = parseInt(document.getElementById('custom-hours').value) || 0;
-    const minutes = parseInt(document.getElementById('custom-minutes').value) || 0;
-    const seconds = parseInt(document.getElementById('custom-seconds').value) || 0;
+    const hours = parseInt(document.querySelector('#custom-hours').value) || 0;
+    const minutes = parseInt(document.querySelector('#custom-minutes').value) || 0;
+    const seconds = parseInt(document.querySelector('#custom-seconds').value) || 0;
 
     if (hours >= 0 && minutes >= 0 && seconds >= 0) {
         timerSeconds = hours * 3600 + minutes * 60 + seconds;
@@ -309,9 +309,9 @@ function customizeTimer() {
             clearInterval(timerInterval);
             timerInterval = setInterval(updateTimer, 1000);
             
-            document.getElementById('pauseResume').textContent = 'Play';
-            document.getElementById('playPauseIcon').className = 'fas fa-play';
-            document.getElementById('timer').textContent = `${formatTime(hours,minutes,seconds)}`;
+            document.querySelector('#pauseResume').textContent = 'Play';
+            document.querySelector('#playPauseIcon').className = 'fas fa-play';
+            document.querySelector('#timer').textContent = `${formatTime(hours,minutes,seconds)}`;
         } else {
             alert('Please enter a valid time greater than 0 seconds.');
         }
@@ -328,15 +328,15 @@ function formatTime(hours, minutes, seconds) {
 
 function pauseResumeTimer() {
     isPaused = !isPaused;
-    document.getElementById('pauseResume').textContent = isPaused ? 'Play' : 'Pause';
+    document.querySelector('#pauseResume').textContent = isPaused ? 'Play' : 'Pause';
     if (isPaused && window.audioPlayer) {
         window.audioPlayer.pause();
-        document.getElementById('playPauseIcon').className = 'fas fa-play';
+        document.querySelector('#playPauseIcon').className = 'fas fa-play';
     } else if (!isPaused && window.audioPlayer) {
         window.audioPlayer.play().catch(error => {
             console.error('Error resuming audio:', error);
         });
-        document.getElementById('playPauseIcon').className = 'fas fa-pause';
+        document.querySelector('#playPauseIcon').className = 'fas fa-pause';
     }
 }
 
@@ -368,7 +368,7 @@ function previousTrack() {
         window.audioPlayer.src = audioSources[newIndex];
         window.audioPlayer.play()
         .then(()=> {
-            document.getElementById('playPauseIcon').className = 'fas fa-pause';
+            document.querySelector('#playPauseIcon').className = 'fas fa-pause';
             isPaused = false;
         })
         .catch(error => {
@@ -384,7 +384,7 @@ function nextTrack() {
         window.audioPlayer.src = audioSources[newIndex];
         window.audioPlayer.play()
         .then(()=> {
-            document.getElementById('playPauseIcon').className = 'fas fa-pause';
+            document.querySelector('#playPauseIcon').className = 'fas fa-pause';
             isPaused = false;
         })
         .catch(error => {
@@ -394,8 +394,8 @@ function nextTrack() {
 }
 
 function changeAudioSource() {
-    const selectedSource = document.getElementById('audioSourceDropdown').value;
-    const vinylLabel = document.getElementById('vinyl-label-text');
+    const selectedSource = document.querySelector('#audioSourceDropdown').value;
+    const vinylLabel = document.querySelector('#vinyl-label-text');
     switch(selectedSource) {
         case 'ghibliInspired':
             audioSources = ghibliInspiredSources;
@@ -434,7 +434,7 @@ function toggleLoop() {
     if (window.audioPlayer) {
         isLoop = !isLoop;
         window.audioPlayer.loop = isLoop; 
-        const loopToggleButton = document.getElementById('loopToggle');
+        const loopToggleButton = document.querySelector('#loopToggle');
         if (isLoop) {
             loopToggleButton.classList.add('dark-theme');
         } else {
@@ -466,7 +466,7 @@ function createRain() {
   
   function toggleRain() {
     const rainContainer = document.querySelector('.rain');
-    const rainToggle = document.getElementById('rainToggle');
+    const rainToggle = document.querySelector('#rainToggle');
     if (!window.rainAudio) {
         window.rainAudio = new Audio(rainSoundFx);
         window.rainAudio.volume = 0.5;
@@ -494,6 +494,8 @@ function createRain() {
   }
 
 function toggleThunder() {
+    const thunderToggle = document.querySelector('#thunderToggle');
+
     if (!window.thunderAudio) {
         window.thunderAudio = new Audio(thunderSoundFx);
         window.thunderAudio.volume = 0.7;
@@ -511,17 +513,40 @@ function toggleThunder() {
 }
 
 function toggleSun() {
-    const sunToggle = document.getElementById('sunToggle');
-    const body = document.body;
+    const sunGlare = document.querySelector('.sun-glare');
+    const skyBackground = document.querySelector('.sky-background');
+    
+    const sunToggle = document.querySelector('#sunToggle');    
+    const rainToggle = document.querySelector('#rainToggle');
+    const thunderToggle = document.querySelector('#thunderToggle');
+
+    if (!window.sunAudio) {
+        window.sunAudio = new Audio(sunSoundFx);
+        window.sunAudio.volume = 0.5;
+        window.sunAudio.loop = true;
+    }
     
     if (sunToggle.classList.contains('dark-theme')) {
         console.info('❌☀️');
+        sunGlare.style.display = 'none';
+        skyBackground.style.display = 'none';
         sunToggle.classList.remove('dark-theme');
-        body.classList.remove('sunny');
+        window.sunAudio?.pause();
+        
+        // Remove existing glare
+        sunGlare.innerHTML = '';
+        skyBackground.innerHTML = '';
     } else {
         console.info('☀️☀️');
+        
+        // Remove Rain/Thunder if toggled on
+        rainToggle.classList.contains('dark-theme') ? toggleRain() : console.log("Not rainy 😊");
+        thunderToggle.classList.contains('dark-theme') ? toggleThunder() : console.log("Not thundering 😊");
+
+        sunGlare.style.display = 'block';
+        skyBackground.style.display = 'block';
         sunToggle.classList.add('dark-theme');
-        body.classList.add('sunny');
+        window.sunAudio.play();
     }
 }
 
