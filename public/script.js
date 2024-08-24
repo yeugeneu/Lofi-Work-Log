@@ -426,18 +426,19 @@ function pauseResumeTimer() {
     document.querySelector('#pauseResume').textContent = isPaused ? 'Play' : 'Pause';
     if (isPaused && window.audioPlayer) {
         window.audioPlayer.pause();
-        document.querySelector('#playPauseIcon').className = 'fas fa-play';
+        document.querySelector('#playPauseIcon').className = 'fas fa-play'
     } else if (!isPaused && window.audioPlayer) {
         window.audioPlayer.play().catch(error => {
             console.error('Error resuming audio:', error);
-        });
-        document.querySelector('#playPauseIcon').className = 'fas fa-pause';
+        }).then(() => document.querySelector('#playPauseIcon').className = 'fas fa-pause');
     }
 }
 
 // Audio Functions
 function playRandomAudio() {
-    const randomSource = audioSources[Math.floor(Math.random() * audioSources.length)];
+    // const randomSource = audioSources[Math.floor(Math.random() * audioSources.length)];
+    const randomSource = audioSources[Math.floor(Math.random() * new Date().getTime() % audioSources.length)];
+
     window.audioPlayer = new Audio(randomSource);
     window.audioPlayer.addEventListener('error', function(e) {
         console.log(`Error loading audio ${randomSource}, play the next audio file`);
@@ -491,6 +492,8 @@ function nextTrack() {
 function changeAudioSource() {
     const selectedSource = document.querySelector('#audioSourceDropdown').value;
     const vinylLabel = document.querySelector('#vinyl-label-text');
+    console.info(`Setting audio source to ${selectedSource}`);
+
     switch(selectedSource) {
         case 'ghibliInspired':
             audioSources = ghibliInspiredSources;
@@ -530,9 +533,10 @@ function changeAudioSource() {
             break;
     }
     
-    // If audio is currently playing, switch to the first track of the new source
+    // If audio is currently playing, switch to a randome track of the new source
     if (window.audioPlayer && !window.audioPlayer.paused) {
-        window.audioPlayer.src = audioSources[0];
+        const randomSource = audioSources[Math.floor(Math.random() * new Date().getTime() % audioSources.length)];
+        window.audioPlayer.src = randomSource;
         window.audioPlayer.play().catch(error => {
             console.error('Error playing new audio source:', error);
         });
