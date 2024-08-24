@@ -190,6 +190,9 @@ const sunSoundFx = 'https://cdn.uppbeat.io/audio-files/44fbdf1792559839ac2aaf16c
 const rainSoundFx = 'https://cdn.uppbeat.io/audio-files/8f7bad86600558899edb9677072692ee/c5a6544ca4d77d8cda881bae989f35de/c9b7d8fbdcf58a6e5a9bb4ee160b9cbb/STREAMING-rain-outside-window-betacut-medium-1-01-00.mp3';
 const thunderSoundFx = 'https://cdn.pixabay.com/audio/2024/02/19/audio_8d25df9ef0.mp3';
 
+const typingSoundFx = 'https://cdn.pixabay.com/audio/2022/02/07/audio_ddfb1f8f33.mp3';
+const cafeSoundFx = 'https://cdn.pixabay.com/audio/2022/03/09/audio_f8356168cb.mp3';
+
 // Reminder and Popup Functions
 function showReminder() {
     document.querySelector('#reminderPopup').style.display = 'block';
@@ -414,9 +417,9 @@ function customizeTimer() {
 
 function formatTime(hours, minutes, seconds) {
     return [hours, minutes, seconds]
-      .map(v => v < 10 ? '0' + v : v)
-      .join(':');
-  }
+        .map(v => v < 10 ? '0' + v : v)
+        .join(':');
+}
 
 function pauseResumeTimer() {
     isPaused = !isPaused;
@@ -550,6 +553,45 @@ function toggleLoop() {
         }
     }
 }
+
+function toggleSun() {
+    const sunGlare = document.querySelector('.sun-glare');
+    const skyBackground = document.querySelector('.sky-background');
+    
+    const sunToggle = document.querySelector('#sunToggle');    
+    const rainToggle = document.querySelector('#rainToggle');
+    const thunderToggle = document.querySelector('#thunderToggle');
+
+    if (!window.sunAudio) {
+        window.sunAudio = new Audio(sunSoundFx);
+        window.sunAudio.volume = 0.5;
+        window.sunAudio.loop = true;
+    }
+    
+    if (sunToggle.classList.contains('dark-theme')) {
+        console.info('❌☀️');
+        sunGlare.style.display = 'none';
+        skyBackground.style.display = 'none';
+        sunToggle.classList.remove('dark-theme');
+        window.sunAudio?.pause();
+        
+        // Remove existing glare
+        sunGlare.innerHTML = '';
+        skyBackground.innerHTML = '';
+    } else {
+        console.info('☀️☀️');
+        
+        // Remove Rain/Thunder if toggled on
+        rainToggle.classList.contains('dark-theme') ? toggleRain() : console.log("Not rainy 😊");
+        thunderToggle.classList.contains('dark-theme') ? toggleThunder() : console.log("Not thundering 😊");
+
+        sunGlare.style.display = 'block';
+        skyBackground.style.display = 'block';
+        sunToggle.classList.add('dark-theme');
+        window.sunAudio.play();
+    }
+}
+
 function createRain() {
     const rainContainer = document.querySelector('.rain');
     const drop = document.createElement('div');
@@ -570,9 +612,9 @@ function createRain() {
     setTimeout(() => {
       drop.remove();
     }, duration * 1000);
-  }
+}
   
-  function toggleRain() {
+function toggleRain() {
     const rainContainer = document.querySelector('.rain');
     const rainToggle = document.querySelector('#rainToggle');
     if (!window.rainAudio) {
@@ -620,43 +662,44 @@ function toggleThunder() {
     }
 }
 
-function toggleSun() {
-    const sunGlare = document.querySelector('.sun-glare');
-    const skyBackground = document.querySelector('.sky-background');
-    
-    const sunToggle = document.querySelector('#sunToggle');    
-    const rainToggle = document.querySelector('#rainToggle');
-    const thunderToggle = document.querySelector('#thunderToggle');
+function toggleTyping() {
+    const typingToggle = document.querySelector('#typingToggle');
 
-    if (!window.sunAudio) {
-        window.sunAudio = new Audio(sunSoundFx);
-        window.sunAudio.volume = 0.5;
-        window.sunAudio.loop = true;
+    if (!window.typingAudio) {
+        window.typingAudio = new Audio(typingSoundFx);
+        window.typingAudio.volume = 0.6;
     }
-    
-    if (sunToggle.classList.contains('dark-theme')) {
-        console.info('❌☀️');
-        sunGlare.style.display = 'none';
-        skyBackground.style.display = 'none';
-        sunToggle.classList.remove('dark-theme');
-        window.sunAudio?.pause();
-        
-        // Remove existing glare
-        sunGlare.innerHTML = '';
-        skyBackground.innerHTML = '';
-    } else {
-        console.info('☀️☀️');
-        
-        // Remove Rain/Thunder if toggled on
-        rainToggle.classList.contains('dark-theme') ? toggleRain() : console.log("Not rainy 😊");
-        thunderToggle.classList.contains('dark-theme') ? toggleThunder() : console.log("Not thundering 😊");
 
-        sunGlare.style.display = 'block';
-        skyBackground.style.display = 'block';
-        sunToggle.classList.add('dark-theme');
-        window.sunAudio.play();
+    if (typingToggle.classList.contains('dark-theme')) {
+        console.info('❌⌨️');
+        typingToggle.classList.remove('dark-theme');
+        window.typingAudio.pause();
+    } else {
+        console.info('⌨️⌨️');
+        typingToggle.classList.add('dark-theme');
+        window.typingAudio.play();
     }
 }
+
+function toggleCafe() {
+    const cafeToggle = document.querySelector('#cafeToggle');
+
+    if (!window.cafeAudio) {
+        window.cafeAudio = new Audio(cafeSoundFx);
+        window.cafeAudio.volume = 0.7;
+    }
+
+    if (cafeToggle.classList.contains('dark-theme')) {
+        console.info('❌☕');
+        cafeToggle.classList.remove('dark-theme');
+        window.cafeAudio.pause();
+    } else {
+        console.info('☕☕');
+        cafeToggle.classList.add('dark-theme');
+        window.cafeAudio.play();
+    }
+}
+
 
 // Start the timer immediately
 window.onload = async function() {
