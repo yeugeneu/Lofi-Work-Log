@@ -90,6 +90,98 @@ const jazzBeatsSources = [
     'https://cdn.uppbeat.io/audio-files/b90989c8ba0b62e8eb948123e09825ac/747866cf2717b6dd9d1962ce0cfee320/e8ea4e0f7dde8beb0133570f6627ea43/STREAMING-paris-coffee-shop-nicolas-kluzek-main-version-25893-01-45.mp3'
 ];
 
+const sadSources = [
+    'https://cdn.uppbeat.io/audio-files/5dfbc12f82c94629f611d67857f9856a/6ea267625fac41a61b8fdd35a5b9cbce/c6e602fae2c1f92901c231a5deddd48b/STREAMING-living-waters-brock-hewitt-stories-in-sound-main-version-16300-04-26.mp3',
+    'https://cdn.uppbeat.io/audio-output/470/1860/main-version/streaming-previews/STREAMING-caravan-arend-main-version-03-02-6593.mp3',
+    'https://cdn.uppbeat.io/audio-output/255/3706/main-version/streaming-previews/STREAMING-washed-brock-hewitt-stories-in-sound-main-version-03-45-13831.mp3',
+    'https://cdn.uppbeat.io/audio-output/5/274/main-version/streaming-previews/STREAMING-love-and-sorrow-ak-main-version-02-03-1319.mp3',
+    'https://cdn.uppbeat.io/audio-output/22/2779/main-version/streaming-previews/STREAMING-making-progress-dan-phillipson-main-version-02-56-10491.mp3',
+    'https://cdn.uppbeat.io/audio-output/255/2582/main-version/streaming-previews/STREAMING-watching-the-waves-brock-hewitt-stories-in-sound-main-version-02-53-9714.mp3',
+    'https://cdn.uppbeat.io/audio-output/534/3365/main-version/streaming-previews/STREAMING-the-wound-between-us-cory-alstad-main-version-02-40-12696.mp3',
+    'https://cdn.uppbeat.io/audio-output/255/2575/main-version/streaming-previews/STREAMING-in-the-silence-brock-hewitt-stories-in-sound-main-version-03-42-9707.mp3',
+    'https://cdn.uppbeat.io/audio-output/470/2905/main-version/streaming-previews/STREAMING-solstice-i-arend-main-version-03-50-10925.mp3',
+    'https://cdn.uppbeat.io/audio-files/764020966407166bfd6ce54e8948466e/acc715d5976171e4f09bd91edf25848f/5e1448fc4172cde7a1247fa207ee33c0/STREAMING-lost-in-time-aylex-main-version-21983-02-05.mp3',
+    'https://cdn.uppbeat.io/audio-output/470/1863/main-version/streaming-previews/STREAMING-lament-arend-main-version-03-19-6615.mp3',
+    'https://cdn.uppbeat.io/audio-files/e98a11e9b1c19795f4c5a2952ad4ad27/3cb36e310a056d55cf27928073309929/a4ef4a7b8367b246363ef1de854db827/STREAMING-notes-from-the-past-monument-music-main-version-5991-01-30.mp3',
+    'https://cdn.uppbeat.io/audio-files/7d3fe3366ff4f59880ca3f2f8996ed50/99933bf355b40c05d81b5a396fa01581/98105fdc608d9fc013ecceab766700df/STREAMING-yearning-heart-infraction-main-version-15051-02-35.mp3',
+    'https://cdn.uppbeat.io/audio-output/255/1166/main-version/streaming-previews/STREAMING-through-darkness-brock-hewitt-stories-in-sound-main-version-02-52-3864.mp3',
+    'https://cdn.uppbeat.io/audio-files/1681cd49bc5562538e7d2edc7340ad00/1e9c4f222579269f9a9892089fbd6491/5a20ce7dbccac6f74eb279e5f1df046a/STREAMING-broken-david-bullard-main-version-23802-01-49.mp3',
+    'https://cdn.uppbeat.io/audio-output/82/1027/main-version/streaming-previews/STREAMING-clouds-northwestern-main-version-01-31-3505.mp3',
+    'https://cdn.uppbeat.io/audio-files/7ca00d8b9e9088256e127670a0c823d2/193bc7f5b06b0f88df9d0eddbd3ccbc0/0dee9b9b9294dd8bb21207be0b9e5784/STREAMING-abyss-walker-studiokolomna-main-version-30002-02-00.mp3',
+    'https://cdn.uppbeat.io/audio-output/124/817/main-version/streaming-previews/STREAMING-turn-away-yeti-music-main-version-01-00-3022.mp3',
+    'https://cdn.uppbeat.io/audio-files/ecd6f52a756aed265e635c6c3562818a/76d22d7252e49083d2ac1acec416d309/627a50cfd0a9a34be21260e831effdc3/STREAMING-without-you-sonda-main-version-23922-02-52.mp3',
+    'https://cdn.uppbeat.io/audio-output/304/1223/main-version/streaming-previews/STREAMING-sight-ilya-kuznetsov-main-version-03-25-3941.mp3'
+];
+
+const goodVibeSources = [
+    'https://cdn.uppbeat.io/audio-output/330/201/main-version/streaming-previews/STREAMING-trendsetter-mood-maze-main-version-02-53-1004.mp3',
+    'https://cdn.uppbeat.io/audio-files/f7a17930b3ac8c8070a94a121bce181c/74ed4ae87d0bfba11a689fb424928cdc/ba58f01a66b005bbaa3f9dccabfc4dda/STREAMING-seize-the-day-andrey-rossi-main-version-14571-01-40.mp3',
+    'https://cdn.uppbeat.io/audio-output/345/6616/main-version/streaming-previews/STREAMING-funk-in-the-trunk-trinity-main-version-02-26-19677.mp3',
+    'https://cdn.uppbeat.io/audio-files/ecd6f52a756aed265e635c6c3562818a/c180600b1e0633eb33ebc94f5c6e3c85/97eea5a88eab448b80ea87c141b1a071/STREAMING-fridays-sonda-main-version-22636-02-05.mp3',
+    'https://cdn.uppbeat.io/audio-files/578df957bfa8068a40f9957bab448d08/b2000757b2d6a2e733a33b1cd078fd5d/18f4b2345f098fd944e4a93d7d596582/STREAMING-paradise-island-hartzmann-main-version-13205-03-07.mp3',
+    'https://cdn.uppbeat.io/audio-output/392/3520/main-version/streaming-previews/STREAMING-sweet-dreams-ra-main-version-02-10-13182.mp3',
+    'https://cdn.uppbeat.io/audio-output/392/3600/main-version/streaming-previews/STREAMING-let-good-times-roll-ra-main-version-02-57-13553.mp3',
+    'https://cdn.uppbeat.io/audio-files/0e5573c69208594d8a7e799df2ff2bcc/312cc6f2d6f06854f3ba6382e79273b2/89bdfc2e6a0ebde0648d648a2982ebf8/STREAMING-in-the-sun-simon-folwar-main-version-17400-02-33.mp3',
+    'https://cdn.uppbeat.io/audio-files/578df957bfa8068a40f9957bab448d08/d547165c2d1dd8d1d9768ddf28a5dacb/e78138cf5f3fb849af7361967b4912f5/STREAMING-clear-sky-hartzmann-main-version-5299-02-20.mp3',
+    'https://cdn.uppbeat.io/audio-output/346/217/main-version/streaming-previews/STREAMING-follow-your-heart-atm-main-version-02-32-1090.mp3',
+    'https://cdn.uppbeat.io/audio-files/578df957bfa8068a40f9957bab448d08/71af7d87a4be5c114d3e2a0ec339068c/35739a1ed60925a65d77b68c8968a333/STREAMING-no-sugar-please-hartzmann-main-version-18190-02-28.mp3',
+    'https://cdn.uppbeat.io/audio-files/578df957bfa8068a40f9957bab448d08/91c31c31bc5d370834e0dd90430346b7/5162d36c7ebdff6430290d614b5b27e9/STREAMING-love-machine-hartzmann-main-version-17902-02-31.mp3',
+    'https://cdn.uppbeat.io/audio-files/fd6f99da8569b8fae0e89b28891fc96a/1c3c78a928a92dfd88def41226c04f96/6f96fc3d1b259cc729c3ae7b394b8944/STREAMING-upbeat-heat-ra-main-version-19082-02-16.mp3',
+    'https://cdn.uppbeat.io/audio-files/976c5cd0422903916639fdd87df459b7/4623035aec7285417e80f3c597a46072/d6f49331d95bd22f7449a6b2fe216aa0/STREAMING-heatwave-hey-pluto-main-version-5777-02-22.mp3',
+    'https://cdn.uppbeat.io/audio-output/346/220/main-version/streaming-previews/STREAMING-i-feel-you-atm-main-version-02-42-1108.mp3',
+    'https://cdn.uppbeat.io/audio-files/fabca43253b27cfd78217d5cd423028e/0acdf55a5259769890d6476501560ec5/9dd01fd1842bc26b506f153dff36ce4c/STREAMING-at-the-hotel-paul-yudin-main-version-12271-02-36.mp3',
+    'https://cdn.uppbeat.io/audio-files/3159011fed399f2fd1cddccf6d2c4b80/889eff4ff19ba78bf99f3b84c83e69a6/2f35e3b8a86c58bbda503662d80a8e5f/STREAMING-searching-danger-lion-x-main-version-15846-02-44.mp3',
+    'https://cdn.uppbeat.io/audio-files/fabca43253b27cfd78217d5cd423028e/a90ed335ac13a1dce6519364247d4030/e809f54e9df572f851874e4afb8d715d/STREAMING-summer-bumble-paul-yudin-main-version-18169-02-16.mp3',
+    'https://cdn.uppbeat.io/audio-output/455/6389/main-version/streaming-previews/STREAMING-some-kind-of-feelin-ben-johnson-main-version-03-53-18655.mp3',
+    'https://cdn.uppbeat.io/audio-files/bf4a6c1411782684a48e0896370f8fb9/2e86d1ec8673d839d4415e96ff0c6e57/731ccca925e8ef79b220c1e31cc3a4fa/STREAMING-check-it-out-mountaineer-main-version-782-02-04.mp3'
+];
+
+const timelapseSources = [
+    'https://cdn.uppbeat.io/audio-output/161/1783/main-version/streaming-previews/STREAMING-aspire-all-good-folks-main-version-02-18-6252.mp3',
+    'https://cdn.uppbeat.io/audio-files/1eaed6f18d69074e114db529f2bd7e46/899451f6b072faaabf214412b89e8ce4/d5dfc5a9172ba2d887b49b9902bb15e2/STREAMING-transcend-soundroll-main-version-1756-02-38.mp3',
+    'https://cdn.uppbeat.io/audio-output/539/3722/main-version/streaming-previews/STREAMING-miracle-qube-main-version-01-44-13858.mp3',
+    'https://cdn.uppbeat.io/audio-output/330/200/main-version/streaming-previews/STREAMING-nightdrive-mood-maze-main-version-02-46-1001.mp3',
+    'https://cdn.uppbeat.io/audio-files/578df957bfa8068a40f9957bab448d08/d4acb1782745883e286f96f07aa9ad72/ab15f9a5177b21936afa026e466ecfe1/STREAMING-good-feelings-hartzmann-main-version-10045-02-23.mp3',
+    'https://cdn.uppbeat.io/audio-files/4c2acfacd00e6047810cd3a48697d3a3/060a92e1216eed438f5460bacf0ce846/501d17f3aab5d1f6f67d3a405833d823/STREAMING-stellar-escape-prigida-main-version-25318-03-02.mp3',
+    'https://cdn.uppbeat.io/audio-output/531/3057/main-version/streaming-previews/STREAMING-eyes-wide-open-matrika-main-version-02-25-11468.mp3',
+    'https://cdn.uppbeat.io/audio-files/976c5cd0422903916639fdd87df459b7/9c4def493d026dfbcf556043c0f4dce4/240fb67fed344f1251fa45a1a585a290/STREAMING-innovation-hey-pluto-main-version-2517-02-13.mp3',
+    'https://cdn.uppbeat.io/audio-output/303/2072/main-version/streaming-previews/STREAMING-fresh-air-mountaineer-main-version-02-52-7640.mp3',
+    'https://cdn.uppbeat.io/audio-files/32ed1ea8a647cae58ad0a4b0b67bcef9/34d538f84e1ff07955cd7577e2cda6f2/4e593df093c30d56cad331954a597057/STREAMING-stardust-danijel-zambo-main-version-1372-03-13.mp3',
+    'https://cdn.uppbeat.io/audio-files/ca51760c641519bcff2c32cdf8e83fff/3900208d9f7d807c9ca241fc9e47615f/83a1343e5b8e80fab1e119b15772ee1c/STREAMING-blue-sea-swoop-main-version-18177-01-14.mp3',
+    'https://cdn.uppbeat.io/audio-output/543/3260/main-version/streaming-previews/STREAMING-modify-swoop-main-version-01-28-12367.mp3',
+    'https://cdn.uppbeat.io/audio-files/578df957bfa8068a40f9957bab448d08/aaae629b65d8fae44c43a163a21de2e7/5d785d246db818cc74d9d7f911ec5db6/STREAMING-space-journey-hartzmann-main-version-15284-03-33.mp3',
+    'https://cdn.uppbeat.io/audio-files/90460af8401a0c906aa65f33459c4428/9f7a7fe8ac445681414f57e010cb377c/4dfcbf898dcff24c73eb83abe9405c39/STREAMING-chasing-freedom-vens-adams-main-version-5006-01-56.mp3',
+    'https://cdn.uppbeat.io/audio-output/172/2361/main-version/streaming-previews/STREAMING-dreamline-abbynoise-main-version-02-19-8683.mp3',
+    'https://cdn.uppbeat.io/audio-output/336/2668/main-version/streaming-previews/STREAMING-with-the-winds-volo-main-version-05-15-10020.mp3',
+    'https://cdn.uppbeat.io/audio-files/578df957bfa8068a40f9957bab448d08/d547165c2d1dd8d1d9768ddf28a5dacb/e78138cf5f3fb849af7361967b4912f5/STREAMING-clear-sky-hartzmann-main-version-5299-02-20.mp3',
+    'https://cdn.uppbeat.io/audio-files/93e462f9425d0f25e9d339d3caab680a/560ac63a9ec50fcf93f4f3074477002e/fc377480afe502ef5845bb81456f8225/STREAMING-clarity-zoo-main-version-3620-03-15.mp3',
+    'https://cdn.uppbeat.io/audio-files/3e736df8037fc2ea4d137bf5e8b6287c/23644f1869c4dad44b4d9386c09ccd5f/7ba2ede95fd10e7ced902c7f38267ed0/STREAMING-flowing-stream-yeti-music-main-version-21536-00-31.mp3',
+    'https://cdn.uppbeat.io/audio-files/578df957bfa8068a40f9957bab448d08/82e9f61e8757df45b8aa40bbc283d394/79ad23565478d815e6baab756f962f44/STREAMING-change-way-hartzmann-main-version-17889-04-55.mp3'
+];
+
+const calmSources = [
+    'https://cdn.uppbeat.io/audio-files/5dfbc12f82c94629f611d67857f9856a/0eb19a6fb3d21c02fe9c4022bd1bf2fd/8c4b5ebe8e3874f85ebf11df961fd360/STREAMING-rule-of-life-brock-hewitt-stories-in-sound-main-version-29683-03-53.mp3',
+    'https://cdn.uppbeat.io/audio-output/5/265/main-version/streaming-previews/STREAMING-lost-in-thoughts-ak-main-version-02-10-1310.mp3',
+    'https://cdn.uppbeat.io/audio-files/6dc9bc42bb6db2adb9da948c6d4cc319/e7bca11a65c2367d0a351bac0cc26659/0311341eb714bd57a5cd71f376f13776/STREAMING-blue-waters-yasumu-main-version-22452-02-24.mp3',
+    'https://cdn.uppbeat.io/audio-output/5/275/main-version/streaming-previews/STREAMING-hypotheticals-ak-main-version-02-01-1320.mp3',
+    'https://cdn.uppbeat.io/audio-files/5dfbc12f82c94629f611d67857f9856a/1e617c65e4d66a58198e32a811a44b59/fb1619078e042f5413fbcd3613a6b3fc/STREAMING-ages-ago-brock-hewitt-stories-in-sound-main-version-16212-04-06.mp3',
+    'https://cdn.uppbeat.io/audio-files/15a30d6e9cb41e3406ef9a71bcd32532/5eb8c0b11620b2b58580adc5fa7ccbc1/71e19ee166c4ab841d562ccb09a6fda7/STREAMING-shine-revo-main-version-17686-02-54.mp3',
+    'https://cdn.uppbeat.io/audio-output/82/1387/main-version/streaming-previews/STREAMING-hometown-northwestern-main-version-02-42-4402.mp3',
+    'https://cdn.uppbeat.io/audio-output/304/1222/main-version/streaming-previews/STREAMING-serenity-ilya-kuznetsov-main-version-03-38-3939.mp3',
+    'https://cdn.uppbeat.io/audio-files/6fe37c64db62e03d698e462645fa35a7/5686c5d9e29a0283b29d9be3c30ceee6/3308900c9fb1baa575a2e86f46079e71/STREAMING-sweetness-of-the-moment-pecan-pie-main-version-18665-02-24.mp3',
+    'https://cdn.uppbeat.io/audio-files/6acf0e1e998166efd11dea1a992a0780/bf7f5058732d57fb99e543dc1499052a/9c5e95c2b8c7912cd8a635e9860c376e/STREAMING-dreamland-jonny-easton-main-version-17345-30-17.mp3',
+    'https://cdn.uppbeat.io/audio-files/dea4043ccc3a0740a011ed2d8284ee82/856215c64d701632f473f66ac48fdb4f/d441b1d31f5030f5f38d84aa116a0493/STREAMING-gentle-awareness-oliver-massa-main-version-32790-06-24.mp3',
+    'https://cdn.uppbeat.io/audio-output/393/3514/main-version/streaming-previews/STREAMING-soothing-dream-revo-main-version-01-18-13143.mp3',
+    'https://cdn.uppbeat.io/audio-files/7ca00d8b9e9088256e127670a0c823d2/2a6b5d07ae3880fe79f9ef52e948b518/542ac3e3b37676a87a2c1ba4971ef91e/STREAMING-reverie-studiokolomna-main-version-28865-01-59.mp3',
+    'https://cdn.uppbeat.io/audio-output/159/2848/main-version/streaming-previews/STREAMING-calm-zimpzon-main-version-07-55-10844.mp3',
+    'https://cdn.uppbeat.io/audio-files/f1b6cf9749ee3ff1565e8e6c8e2f483d/08f20734e983aa059f475b13bc39d137/b28d8e45963537b9fa86a25a1f858320/STREAMING-closing-a-chapter-poetri-main-version-25596-02-37.mp3',
+    'https://cdn.uppbeat.io/audio-files/1d539a11278b5abd885fd21387716480/d2bdfb9c2ee90c994807d42756ea9e4d/97bbb361a871912fb5db2b0a6d84e509/STREAMING-gently-does-it-justin-lee-main-version-16508-02-09.mp3',
+    'https://cdn.uppbeat.io/audio-output/124/820/main-version/streaming-previews/STREAMING-peaceful-morning-yeti-music-main-version-00-35-3025.mp3',
+    'https://cdn.uppbeat.io/audio-output/5/271/main-version/streaming-previews/STREAMING-sky-high-ak-main-version-03-30-1316.mp3',
+    'https://cdn.uppbeat.io/audio-files/1681cd49bc5562538e7d2edc7340ad00/95168f9bfa9fd9bbfdd8fe96b06cb9ec/b61db2521e75b13d39d10fde5b9e9735/STREAMING-bliss-david-bullard-main-version-23806-03-02.mp3',
+    'https://cdn.uppbeat.io/audio-files/34c10e66287f2d6310a13c341ed6f152/50068231c0def4ef16e42a43577835fc/e9a09b8387903ea85368f2e4eee5718a/STREAMING-fireflies-ambient-boy-main-version-13500-09-58.mp3'
+];
+
 let audioSources = defaultSources;
 
 const completeSoundFx = 'https://cdn.uppbeat.io/audio-files/d927511931994ce45cf5b95b34e23536/b8acdddc6e37f6b47b0057dbaf3b53af/9c3ce15f497635d0c185b92d34ce902c/STREAMING-level-complete-winner-piano-om-fx-1-00-06.mp3';
@@ -412,6 +504,22 @@ function changeAudioSource() {
         case 'jazzBeats':
             audioSources = jazzBeatsSources;
             vinylLabel.textContent = 'Jazz';
+            break;
+        case 'sad':
+            audioSources = sadSources;
+            vinylLabel.textContent = 'Sad';
+            break;
+        case 'goodVibe':
+            audioSources = goodVibeSources;
+            vinylLabel.textContent = 'Good Vibe';
+            break;
+        case 'timelapse':
+            audioSources = timelapseSources;
+            vinylLabel.textContent = 'Timelapse';
+            break;
+        case 'calm':
+            audioSources = calmSources;
+            vinylLabel.textContent = 'Calm';
             break;
         default:
             audioSources = defaultSources;
