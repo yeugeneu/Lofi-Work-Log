@@ -653,7 +653,7 @@ function toggleThunder() {
     if (!window.thunderAudio) {
         window.thunderAudio = new Audio(thunderSoundFx);
         window.thunderAudio.volume = 0.6;
-        window.rainAudio.loop = true;
+        window.thunderAudio.loop = true;
     }
 
     if (thunderToggle.classList.contains('dark-theme')) {
@@ -673,7 +673,7 @@ function toggleTyping() {
     if (!window.typingAudio) {
         window.typingAudio = new Audio(typingSoundFx);
         window.typingAudio.volume = 0.6;
-        window.rainAudio.loop = true;
+        window.typingAudio.loop = true;
     }
 
     if (typingToggle.classList.contains('dark-theme')) {
@@ -693,7 +693,7 @@ function toggleCafe() {
     if (!window.cafeAudio) {
         window.cafeAudio = new Audio(cafeSoundFx);
         window.cafeAudio.volume = 0.7;
-        window.rainAudio.loop = true;
+        window.cafeAudio.loop = true;
     }
 
     if (cafeToggle.classList.contains('dark-theme')) {
