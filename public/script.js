@@ -186,12 +186,16 @@ let audioSources = defaultSources;
 
 const completeSoundFx = 'https://cdn.uppbeat.io/audio-files/d927511931994ce45cf5b95b34e23536/b8acdddc6e37f6b47b0057dbaf3b53af/9c3ce15f497635d0c185b92d34ce902c/STREAMING-level-complete-winner-piano-om-fx-1-00-06.mp3';
 
-const sunSoundFx = 'https://cdn.uppbeat.io/audio-files/44fbdf1792559839ac2aaf16cfa6b689/0b1eaccdf444f42aae30a96da4e5250c/7526d6c2f348547b4dbb742a0f1fc776/STREAMING-cuckoo-raven-bird-call-ambience-ivo-vicic-1-01-41.mp3';
+// const sunSoundFx = 'https://cdn.uppbeat.io/audio-files/44fbdf1792559839ac2aaf16cfa6b689/0b1eaccdf444f42aae30a96da4e5250c/7526d6c2f348547b4dbb742a0f1fc776/STREAMING-cuckoo-raven-bird-call-ambience-ivo-vicic-1-01-41.mp3';
+const sunSoundFx = 'https://cdn.uppbeat.io/audio-files/44fbdf1792559839ac2aaf16cfa6b689/d7b619f43e184454b1c0233423ee63dd/818e576c379605ded69f468f47d02b9c/STREAMING-mountain-forest-wind-on-early-spring-day-ivo-vicic-1-01-22.mp3';
 const rainSoundFx = 'https://cdn.uppbeat.io/audio-files/8f7bad86600558899edb9677072692ee/c5a6544ca4d77d8cda881bae989f35de/c9b7d8fbdcf58a6e5a9bb4ee160b9cbb/STREAMING-rain-outside-window-betacut-medium-1-01-00.mp3';
 const thunderSoundFx = 'https://cdn.pixabay.com/audio/2024/02/19/audio_8d25df9ef0.mp3';
 
+const wavesSoundFx = 'https://cdn.uppbeat.io/audio-files/a34d50ecafdf61ec63b0f3d2f41f9998/4c3ea554ad0fcfdd07b8bbfc7fbd979e/90aecc49466add15d636408c7a7e6a35/STREAMING-ocean-waves-on-beach-calm-gamemaster-audio-3-00-14.mp3';
+
 const typingSoundFx = 'https://cdn.pixabay.com/audio/2022/02/07/audio_ddfb1f8f33.mp3';
 const cafeSoundFx = 'https://cdn.pixabay.com/audio/2022/03/09/audio_f8356168cb.mp3';
+const officeSoundFx = 'https://cdn.pixabay.com/audio/2021/08/04/audio_7851094223.mp3';
 
 // Reminder and Popup Functions
 function showReminder() {
@@ -565,6 +569,7 @@ function toggleSun() {
     const sunToggle = document.querySelector('#sunToggle');    
     const rainToggle = document.querySelector('#rainToggle');
     const thunderToggle = document.querySelector('#thunderToggle');
+    const moonToggle = document.querySelector('#moonToggle');
 
     if (!window.sunAudio) {
         window.sunAudio = new Audio(sunSoundFx);
@@ -588,6 +593,8 @@ function toggleSun() {
         // Remove Rain/Thunder if toggled on
         rainToggle.classList.contains('dark-theme') ? toggleRain() : console.log("Not rainy 😊");
         thunderToggle.classList.contains('dark-theme') ? toggleThunder() : console.log("Not thundering 😊");
+        moonToggle.classList.contains('dark-theme') ? toggleTheme() : console.log("Not Dark Theme 😊");
+        
 
         sunGlare.style.display = 'block';
         skyBackground.style.display = 'block';
@@ -667,6 +674,41 @@ function toggleThunder() {
     }
 }
 
+function toggleMoon() {
+    const moonToggle = document.querySelector('#moonToggle');
+
+    if (moonToggle.classList.contains('dark-theme')) {
+        console.info('❌🌚');
+        moonToggle.classList.remove('dark-theme');
+        toggleTheme();
+    } else {
+        console.info('🌚🌚');
+        moonToggle.classList.add('dark-theme');
+        toggleTheme();
+    }
+}
+
+function toggleWave() {
+    const waveToggle = document.querySelector('#waveToggle');
+
+    if (!window.waveAudio) {
+        window.waveAudio = new Audio(wavesSoundFx);
+        window.waveAudio.volume = 0.6;
+        window.waveAudio.loop = true;
+    }
+
+    if (waveToggle.classList.contains('dark-theme')) {
+        console.info('❌🌊');
+        waveToggle.classList.remove('dark-theme');
+        window.waveAudio.pause();
+    } else {
+        console.info('🌊🌊');
+        waveToggle.classList.add('dark-theme');
+        window.waveAudio.play();
+    } 
+}
+
+
 function toggleTyping() {
     const typingToggle = document.querySelector('#typingToggle');
 
@@ -701,11 +743,32 @@ function toggleCafe() {
         cafeToggle.classList.remove('dark-theme');
         window.cafeAudio.pause();
     } else {
-        console.info('☕☕');
+        console.info('☕️☕️');
         cafeToggle.classList.add('dark-theme');
         window.cafeAudio.play();
     }
 }
+
+function toggleOffice() {
+    const officeToggle = document.querySelector('#officeToggle');
+
+    if (!window.officeAudio) {
+        window.officeAudio = new Audio(officeSoundFx);
+        window.officeAudio.volume = 0.7;
+        window.officeAudio.loop = true;
+    }
+
+    if (officeToggle.classList.contains('dark-theme')) {
+        console.info('❌💼');
+        officeToggle.classList.remove('dark-theme');
+        window.officeAudio.pause();
+    } else {
+        console.info('💼💼');
+        officeToggle.classList.add('dark-theme');
+        window.officeAudio.play();
+    }
+}
+
 
 
 // Start the timer immediately
