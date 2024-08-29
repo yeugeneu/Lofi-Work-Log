@@ -1,3 +1,4 @@
+
 // Global variables
 let accomp = [];
 let timerSeconds = 1500; // 25 minutes default
@@ -228,23 +229,33 @@ function toggleTheme() {
     document.body.classList.toggle('dark-theme');
 }
 
-function loadAccomplishments() {
-    fetch('/accomplishments', {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-        }
+async function loadAccomplishments() {
+    // fetch('/accomplishments', {
+    //     method: 'GET',
+    //     headers: {
+    //         'Content-Type': 'application/json',
+    //     }
+    // })
+    // .then((response) => response.json())
+    // .then((data) => {
+    //     console.log(data);
+    //     data.forEach(item => {
+    //         accomp.push({ text: item.text, time: item.time });
+    //     })
+    //     updateAccomplishmentsList();
+    // })
+    // .catch((error) => console.error('Error loading JSON file', error));
+
+    let data = await getData();
+    
+    console.log(data);
+    data.forEach(item => {
+        accomp.push({ text: item.text, time: item.time });
     })
-    .then((response) => response.json())
-    .then((data) => {
-        console.log(data);
-        data.forEach(item => {
-            accomp.push({ text: item.text, time: item.time });
-        })
-        updateAccomplishmentsList();
-    })
-    .catch((error) => console.error('Error loading JSON file', error));
+    updateAccomplishmentsList();
+    
 }
+
 function closeReminderPopup() {
     document.querySelector('#reminderPopup').style.display = 'none';
     document.body.style.pointerEvents = 'auto';
@@ -264,25 +275,28 @@ function submitAccomplishment() {
         };
         
         // server side POST method
-        fetch('/save-accomplishment', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(newAccomplishment),
-        })
-        .then(response => {
-            console.log({response});
-            response.json();
-            accomp.push(newAccomplishment);
-            updateAccomplishmentsList();
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-        });
+        // fetch('/save-accomplishment', {
+        //     method: 'POST',
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //     },
+        //     body: JSON.stringify(newAccomplishment),
+        // })
+        // .then(response => {
+        //     console.log({response});
+        //     response.json();
+        //     accomp.push(newAccomplishment);
+        //     updateAccomplishmentsList();
+        // })
+        // .catch((error) => {
+        //     console.error('Error:', error);
+        // });
+        postData(newAccomplishment);
+        accomp.push(newAccomplishment);    
         input.value = '';
     }
-
+    
+    updateAccomplishmentsList();
     document.querySelector('#reminderPopup').style.display = 'none';
     resetTimer();
     toggleTheme();
@@ -777,3 +791,51 @@ window.onload = async function() {
     playRandomAudio();
     resetTimer();
 };
+
+
+async function postData(newAccomplishment) {
+    let data = await getData();
+
+    let req = new XMLHttpRequest();
+
+    req.onreadystatechange = () => {
+        if (req.readyState == XMLHttpRequest.DONE) {
+            console.log(req.responseText);
+        }
+    };
+
+    
+    const accomplishments = Array.isArray(data) ? data : [];
+    if (!Array.isArray(data)) {
+        console.warn('Data is not in the expected format. Using an empty array.');
+    }
+    accomplishments.push(newAccomplishment);
+    
+    req.open("PUT", "https://api.jsonbin.io/v3/b/66cd259dacd3cb34a879f783", true);
+    req.setRequestHeader("Content-Type", "application/json");
+    req.setRequestHeader("X-Master-Key", "$2a$10$7DGHQP3RXF8VJh/Bz186We6UM72ntvUDeIhXJ.WmBkgxQHe6kwIn.");
+    req.setRequestHeader("X-Access-Key", "$2a$10$vMBgCtnYb1pqLel9GGmJi.NBazv972S4Jjhc8Mq8.AMs/hZIPrA.6");
+    req.send(JSON.stringify(accomplishments, null, 2));  
+}
+
+async function getData() {
+    return new Promise((resolve, reject) => {
+        let req = new XMLHttpRequest();
+
+        req.onreadystatechange = () => {
+            if (req.readyState == XMLHttpRequest.DONE) {
+                if (req.status === 200) {
+                    const responseData = JSON.parse(req.responseText);
+                    resolve(responseData.record);
+                } else {
+                    reject(new Error('Failed to fetch data'));
+                }
+            }
+        };
+        
+        req.open("GET", "https://api.jsonbin.io/v3/b/66cd259dacd3cb34a879f783", true);
+        req.setRequestHeader("X-Master-Key", "$2a$10$7DGHQP3RXF8VJh/Bz186We6UM72ntvUDeIhXJ.WmBkgxQHe6kwIn.");
+        req.setRequestHeader("X-Access-Key", "$2a$10$vMBgCtnYb1pqLel9GGmJi.NBazv972S4Jjhc8Mq8.AMs/hZIPrA.6");
+        req.send();
+    });
+}
