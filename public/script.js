@@ -593,7 +593,7 @@ function toggleSun() {
         // Remove Rain/Thunder if toggled on
         rainToggle.classList.contains('dark-theme') ? toggleRain() : console.log("Not rainy 😊");
         thunderToggle.classList.contains('dark-theme') ? toggleThunder() : console.log("Not thundering 😊");
-        moonToggle.classList.contains('dark-theme') ? toggleTheme() : console.log("Not Dark Theme 😊");
+        moonToggle.classList.contains('dark-theme') ? toggleMoon() : console.log("Not Dark Theme 😊");
         
 
         sunGlare.style.display = 'block';
