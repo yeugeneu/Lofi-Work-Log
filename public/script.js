@@ -189,7 +189,7 @@ const completeSoundFx = 'https://cdn.uppbeat.io/audio-files/d927511931994ce45cf5
 // const sunSoundFx = 'https://cdn.uppbeat.io/audio-files/44fbdf1792559839ac2aaf16cfa6b689/0b1eaccdf444f42aae30a96da4e5250c/7526d6c2f348547b4dbb742a0f1fc776/STREAMING-cuckoo-raven-bird-call-ambience-ivo-vicic-1-01-41.mp3';
 const sunSoundFx = 'https://cdn.uppbeat.io/audio-files/44fbdf1792559839ac2aaf16cfa6b689/d7b619f43e184454b1c0233423ee63dd/818e576c379605ded69f468f47d02b9c/STREAMING-mountain-forest-wind-on-early-spring-day-ivo-vicic-1-01-22.mp3';
 const rainSoundFx = 'https://cdn.uppbeat.io/audio-files/8f7bad86600558899edb9677072692ee/c5a6544ca4d77d8cda881bae989f35de/c9b7d8fbdcf58a6e5a9bb4ee160b9cbb/STREAMING-rain-outside-window-betacut-medium-1-01-00.mp3';
-const snowSoundFx = 'https://cdn.uppbeat.io/audio-files/44fbdf1792559839ac2aaf16cfa6b689/82c89aa9c9bc3530fa710d99d866b1bb/08011864f06f2f05c36873fcf1e2b676/STREAMING-snow-blizzard-forest-ambience-ivo-vicic-1-02-41.mp3';
+const snowSoundFx = 'https://cdn.pixabay.com/audio/2023/08/31/audio_09d9b7815a.mp3';
 const thunderSoundFx = 'https://cdn.pixabay.com/audio/2024/02/19/audio_8d25df9ef0.mp3';
 
 const wavesSoundFx = 'https://cdn.uppbeat.io/audio-files/a34d50ecafdf61ec63b0f3d2f41f9998/4c3ea554ad0fcfdd07b8bbfc7fbd979e/90aecc49466add15d636408c7a7e6a35/STREAMING-ocean-waves-on-beach-calm-gamemaster-audio-3-00-14.mp3';
