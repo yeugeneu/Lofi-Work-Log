@@ -25,6 +25,7 @@
   .dark-theme .timer-control,
   .dark-theme .accomplishment-control,
   .dark-theme .weather-control,
+  .dark-theme .fx-control,
   .dark-theme .audio-control {
     background-color: #555;
     color: #fff;
