@@ -4,6 +4,7 @@ let timerSeconds = 1500; // 25 minutes default
 let timerInterval;
 let isPaused = false;
 let isLoop = false;
+let isMute = false;
 let isDarkTheme = false;
 
 const defaultSources = [
@@ -559,6 +560,20 @@ function toggleLoop() {
             loopToggleButton.classList.add('dark-theme');
         } else {
             loopToggleButton.classList.remove('dark-theme');
+        }
+    }
+}
+
+function toggleMute() {
+    console.log(`Toggling mute background music to ${!isMute}`);
+    if (window.audioPlayer) {
+        isMute = !isMute;
+        window.audioPlayer.muted = isMute;
+        const muteToggleButton = document.querySelector('#mute');
+        if (isMute) {
+            muteToggleButton.classList.add('dark-theme');
+        } else {
+            muteToggleButton.classList.remove('dark-theme');
         }
     }
 }
