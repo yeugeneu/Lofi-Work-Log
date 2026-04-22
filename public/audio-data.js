@@ -1,3 +1,24 @@
+const focusMusicSources = [
+    'https://cdn.pixabay.com/audio/2022/03/10/audio_054d2be21b.mp3',
+    'https://cdn.pixabay.com/audio/2022/03/23/audio_07b2a04be3.mp3',
+    'https://cdn.pixabay.com/audio/2022/04/27/audio_30ff2fdf22.mp3',
+    'https://cdn.pixabay.com/audio/2021/11/23/audio_035a943c87.mp3',
+    'https://cdn.pixabay.com/audio/2021/11/25/audio_91b32e02f9.mp3',
+    'https://cdn.pixabay.com/audio/2021/08/08/audio_dc39bde808.mp3',
+    'https://cdn.pixabay.com/audio/2021/07/22/audio_9584aae297.mp3',
+    'https://cdn.pixabay.com/audio/2020/10/11/audio_746c5a0fb3.mp3',
+    'https://cdn.pixabay.com/audio/2024/07/31/audio_ca7b04c1bd.mp3'
+];
+
+const cafeMusicSources = [
+    'https://cdn.pixabay.com/audio/2022/04/27/audio_30ff2fdf22.mp3',
+    'https://cdn.pixabay.com/audio/2022/03/10/audio_c8c8a73484.mp3',
+    'https://cdn.pixabay.com/audio/2022/10/25/audio_4f7c1f9c9e.mp3',
+    'https://cdn.pixabay.com/audio/2024/07/31/audio_ca7b04c1bd.mp3',
+    'https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3',
+    'https://cdn.pixabay.com/audio/2021/12/09/audio_a814fab861.mp3'
+];
+
 const defaultSources = [
     'https://cdn.pixabay.com/audio/2024/07/31/audio_ca7b04c1bd.mp3',
     'https://cdn.uppbeat.io/audio-files/bd8b8d896868ba0f13070ce660e33d5e/d93ef703791aac925d15efcfe1d91999/59d54f73347de37fe034ad6e791c3446/STREAMING-fluff-qube-main-version-23976-01-55.mp3',

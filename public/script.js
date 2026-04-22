@@ -2,7 +2,7 @@
 let accomp = [];
 let timerSeconds = 1500; // 25 minutes default
 let timerInterval;
-let isPaused = false;
+let isPaused = true;
 let isLoop = false;
 let isMute = false;
 let isDarkTheme = false;
@@ -36,6 +36,10 @@ function showReminder() {
             }
         });
     }
+
+    // Hide Animations
+    togglePixelArt(false);
+    toggleTomatoIcon(false);
 
     document.querySelector('#reminderPopup').style.display = 'flex';
     if (window.audioPlayer) {
@@ -233,6 +237,10 @@ function resetTimer() {
     document.querySelector('#custom-minutes').value = 25;
     document.querySelector('#custom-seconds').value = 0;
 
+    // Hide Animations
+    togglePixelArt(false);
+    toggleTomatoIcon(false);
+
     isPaused = true;
     if (window.audioPlayer) {
         window.audioPlayer.pause();
@@ -258,6 +266,12 @@ function customizeTimer() {
             document.querySelector('#pauseResume').textContent = 'Play';
             document.querySelector('#playPauseIcon').className = 'fas fa-play';
             document.querySelector('#timer').textContent = `${formatTime(hours,minutes,seconds)}`;
+            
+            isPaused = true;
+            togglePixelArt(false);
+            toggleTomatoIcon(false);
+            
+            localStorage.setItem('timerSeconds', timerSeconds);
         } else {
             alert('Please enter a valid time greater than 0 seconds.');
         }
@@ -272,19 +286,32 @@ function formatTime(hours, minutes, seconds) {
         .join(':');
 }
 
+function syncPlayPauseUI() {
+    const mainBtn = document.querySelector('#pauseResume');
+    const dockIcon = document.querySelector('#playPauseIcon');
+    
+    if (mainBtn) mainBtn.textContent = isPaused ? 'Play' : 'Pause';
+    if (dockIcon) dockIcon.className = isPaused ? 'fas fa-play' : 'fas fa-pause';
+    
+    toggleVinylAnimation(!isPaused);
+    togglePixelArt(!isPaused);
+    toggleTomatoIcon(!isPaused);
+}
+
 function pauseResumeTimer() {
     isPaused = !isPaused;
-    document.querySelector('#pauseResume').textContent = isPaused ? 'Play' : 'Pause';
-    if (isPaused && window.audioPlayer) {
+    
+    syncPlayPauseUI();
+
+    if (!window.audioPlayer) {
+        playRandomAudio();
+    }
+
+    if (isPaused) {
         window.audioPlayer.pause();
-        document.querySelector('#playPauseIcon').className = 'fas fa-play';
-        toggleVinylAnimation(false);
-    } else if (!isPaused && window.audioPlayer) {
+    } else {
         window.audioPlayer.play().catch(error => {
             console.error('Error resuming audio:', error);
-        }).then(() => {
-            document.querySelector('#playPauseIcon').className = 'fas fa-pause';
-            toggleVinylAnimation(true);
         });
     }
 }
@@ -300,43 +327,63 @@ function toggleVinylAnimation(isPlaying) {
     }
 }
 
+function togglePixelArt(isPlaying) {
+    console.log(`Toggling pixel art: ${isPlaying}`);
+    const pixelArtBg = document.querySelector('#pixel-art-bg');
+    if (pixelArtBg) {
+        if (isPlaying) {
+            pixelArtBg.classList.add('active');
+        } else {
+            pixelArtBg.classList.remove('active');
+        }
+    }
+}
+
+function toggleTomatoIcon(isPlaying) {
+    const tomatoIcon = document.querySelector('#tomato-icon');
+    if (tomatoIcon) {
+        if (isPlaying) {
+            tomatoIcon.classList.add('active');
+        } else {
+            tomatoIcon.classList.remove('active');
+        }
+    }
+}
+
 // Audio Functions
 function playRandomAudio() {
-    // const randomSource = audioSources[Math.floor(Math.random() * audioSources.length)];
     const randomSource = audioSources[Math.floor(Math.random() * new Date().getTime() % audioSources.length)];
 
+    if (window.audioPlayer) {
+        window.audioPlayer.pause();
+    }
+
     window.audioPlayer = new Audio(randomSource);
+
     window.audioPlayer.addEventListener('error', function(e) {
         console.log(`Error loading audio ${randomSource}, play the next audio file`);
         nextTrack();
-        window.audioPlayer.play().catch(error => {
-            console.error('Error playing the next audio:', error);
-        });
     });
+
     window.audioPlayer.addEventListener('ended', function() {
         nextTrack();
-        window.audioPlayer.play().catch(error => {
-            console.error('Error playing the next audio:', error);
-        });
     });
+
     window.audioPlayer.loop = isLoop;
     window.audioPlayer.volume = masterVolume;
 }
-
 function previousTrack() {
     if (window.audioPlayer) {
         const currentIndex = audioSources.indexOf(window.audioPlayer.src);
         const newIndex = (currentIndex - 1 + audioSources.length) % audioSources.length;
         window.audioPlayer.src = audioSources[newIndex];
-        window.audioPlayer.play()
-        .then(()=> {
-            document.querySelector('#playPauseIcon').className = 'fas fa-pause';
-            isPaused = false;
-            toggleVinylAnimation(true);
-        })
-        .catch(error => {
-            console.error('Error playing previous track:', error);
-        });
+        
+        if (!isPaused) {
+            window.audioPlayer.play().catch(error => {
+                console.error('Error playing previous track:', error);
+            });
+        }
+        syncPlayPauseUI();
     }
 }
 
@@ -345,15 +392,13 @@ function nextTrack() {
         const currentIndex = audioSources.indexOf(window.audioPlayer.src);
         const newIndex = (currentIndex + 1) % audioSources.length;
         window.audioPlayer.src = audioSources[newIndex];
-        window.audioPlayer.play()
-        .then(()=> {
-            document.querySelector('#playPauseIcon').className = 'fas fa-pause';
-            isPaused = false;
-            toggleVinylAnimation(true);
-        })
-        .catch(error => {
-            console.error('Error playing next track:', error);
-        });
+        
+        if (!isPaused) {
+            window.audioPlayer.play().catch(error => {
+                console.error('Error playing next track:', error);
+            });
+        }
+        syncPlayPauseUI();
     }
 }
 
@@ -363,6 +408,14 @@ function changeAudioSource() {
     console.info(`Setting audio source to ${selectedSource}`);
 
     switch(selectedSource) {
+        case 'focusMusic':
+            audioSources = focusMusicSources;
+            vinylLabel.textContent = 'Focus';
+            break;
+        case 'cafeMusic':
+            audioSources = cafeMusicSources;
+            vinylLabel.textContent = 'Cafe';
+            break;
         case 'ghibliInspired':
             audioSources = ghibliInspiredSources;
             vinylLabel.textContent = 'Ghibli';
@@ -400,17 +453,36 @@ function changeAudioSource() {
             vinylLabel.textContent = 'Lo-Fi';
             break;
     }
+
+    // Update vinyl label color based on vibe
+    const vibeColors = {
+        'focusMusic': '#3498db',     // Deep Blue
+        'cafeMusic': '#795548',      // Coffee Brown
+        'ghibliInspired': '#2ecc71', // Forest Green
+        'lazyLofi': '#e67e22',       // Sunset Orange
+        'lofiChill': '#9b59b6',      // Cool Purple
+        'jazzBeats': '#f1c40f',      // Mustard Yellow
+        'sad': '#95a5a6',            // Slate Gray
+        'goodVibe': '#ffeb3b',       // Bright Yellow
+        'timelapse': '#1abc9c',      // Teal
+        'calm': '#f06292',           // Soft Pink
+        'default': '#a18c8c'         // Original
+    };
     
-    // If audio is currently playing, switch to a randome track of the new source
-    if (window.audioPlayer && !window.audioPlayer.paused) {
-        const randomSource = audioSources[Math.floor(Math.random() * new Date().getTime() % audioSources.length)];
-        window.audioPlayer.src = randomSource;
-        window.audioPlayer.play().then(() => {
-            toggleVinylAnimation(true);
-        }).catch(error => {
+    if (vinylLabel) {
+        vinylLabel.style.backgroundColor = vibeColors[selectedSource] || vibeColors['default'];
+    }
+    
+    // Switch to new vibe category
+    playRandomAudio();
+    
+    if (!isPaused) {
+        window.audioPlayer.play().catch(error => {
             console.error('Error playing new audio source:', error);
         });
     }
+    syncPlayPauseUI();
+
     localStorage.setItem('selectedAudio', selectedSource);
 }
 
@@ -791,4 +863,6 @@ window.onload = async function() {
     } else {
         resetTimer();
     }
+
+    syncPlayPauseUI();
 };

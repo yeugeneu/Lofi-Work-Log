@@ -1,6 +1,6 @@
-# Lofi Work Log
+# Focus Desk
 
-Lofi Work Log is a Pomodoro Clock application with integrated lofi music playback, designed to help you track your daily accomplishments and boost productivity.
+Focus Desk is a Pomodoro Clock application with integrated lofi music playback, designed to help you track your daily accomplishments and boost productivity.
 
 ## Demo
 https://yeugeneu.github.io/Lofi-Work-Log/public/index.html

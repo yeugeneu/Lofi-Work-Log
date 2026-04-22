@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lofi Work Log - Zen Focus</title>
+    <title>Focus Desk - Zen Focus</title>
     <link rel="shortcut icon" href="#">
     <link rel="stylesheet" href="style.css" >
     <script defer src="audio-data.js"></script>
@@ -15,10 +15,11 @@
     <div class="sun-glare"></div>
     <div class="rain"></div>
     <div class="snow"></div>
+    <div id="pixel-art-bg" class="pixel-art-bg"></div>
 
     <main class="app-wrapper glass">
       <header class="app-header">
-        <h1 class="logo">Lofi Log</h1>
+        <h1 class="logo">Focus Desk</h1>
         <button id="moonToggle" class="icon-btn moon-toggle" aria-label="Toggle Dark Theme" onclick="toggleMoon()">
           <i class="fas fa-moon"></i>
         </button>
@@ -26,6 +27,7 @@
 
       <!-- Timer Centerpiece -->
       <section id="timer-focus">
+        <img id="tomato-icon" class="tomato-icon" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbHFsdXU4Znl3MTIzd2tubmhsdTV6aHI1OTVkeWJrenI4MmJmdTBvcyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3OBg5pc9KnENjuwTDV/giphy.gif" alt="Slicing Tomato" />
         <div id="timer" class="timer-display mono">00:25:00</div>
         
         <div class="timer-config">
@@ -100,6 +102,8 @@
             <h4>Select Vibe</h4>
             <select id="audioSourceDropdown" class="vibe-select" onchange="changeAudioSource()">
               <option value="default">Default Music</option>
+              <option value="focusMusic">Focus</option>
+              <option value="cafeMusic">Cafe</option>
               <option value="ghibliInspired">Ghibli Inspired Piano</option>
               <option value="lazyLofi">Lazy Lofi</option>
               <option value="lofiChill">Lo-Fi Chill</option>
@@ -127,24 +131,33 @@
       </section>
     </main>
 
-    <!-- Music Player Dock -->
+    <!-- Music Player Dashboard -->
     <footer class="audio-dock glass">
-      <div class="vinyl-display">
-        <div class="vinyl-record">
-          <div class="vinyl-label" id="vinyl-label-text">Lo-Fi</div>
+      <div class="dashboard-module turntable-module">
+        <div class="vinyl-display">
+          <div class="vinyl-record">
+            <div class="vinyl-label" id="vinyl-label-text">Lo-Fi</div>
+          </div>
         </div>
       </div>
       
-      <div class="media-controls">
-        <button class="media-btn" id="previousTrack" aria-label="Previous" onclick="previousTrack()"><i class="fas fa-step-backward"></i></button>
-        <button class="media-btn play-pause-btn" id="playPause" aria-label="Play/Pause" onclick="pauseResumeTimer()"><i id="playPauseIcon" class="fas fa-play"></i></button>
-        <button class="media-btn" id="nextTrack" aria-label="Next" onclick="nextTrack()"><i class="fas fa-step-forward"></i></button>
+      <div class="dashboard-module mixer-module">
+        <div class="media-controls">
+          <button class="media-btn" id="previousTrack" aria-label="Previous" onclick="previousTrack()"><i class="fas fa-step-backward"></i></button>
+          <button class="media-btn play-pause-btn" id="playPause" aria-label="Play/Pause" onclick="pauseResumeTimer()"><i id="playPauseIcon" class="fas fa-play"></i></button>
+          <button class="media-btn" id="nextTrack" aria-label="Next" onclick="nextTrack()"><i class="fas fa-step-forward"></i></button>
+        </div>
       </div>
 
-      <div class="utility-controls">
-        <button class="media-btn" id="loopToggle" aria-label="Toggle Loop" onclick="toggleLoop()"><i class="fas fa-sync"></i></button>
-        <input type="range" id="masterVolume" class="volume-slider" min="0" max="1" step="0.05" value="1" title="Master Volume">
-        <button class="media-btn" id="mute" aria-label="Mute" onclick="toggleMute()"><i class="fas fa-volume-mute"></i></button>
+      <div class="dashboard-module master-module">
+        <div class="utility-controls">
+          <button class="media-btn" id="loopToggle" aria-label="Toggle Loop" onclick="toggleLoop()"><i class="fas fa-sync"></i></button>
+          <div class="master-fader-container">
+            <i class="fas fa-volume-up fader-icon"></i>
+            <input type="range" id="masterVolume" class="volume-slider" min="0" max="1" step="0.05" value="1" title="Master Volume">
+          </div>
+          <button class="media-btn" id="mute" aria-label="Mute" onclick="toggleMute()"><i class="fas fa-volume-mute"></i></button>
+        </div>
       </div>
     </footer>
 

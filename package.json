@@ -1,5 +1,5 @@
 {
-  "name": "lofi-work-log",
+  "name": "focus-desk",
   "version": "1.0.0",
   "description": "Pomodoro Clock with lofi music to record your daily accomplishments",
   "main": "server.js",
