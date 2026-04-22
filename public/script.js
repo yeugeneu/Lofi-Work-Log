@@ -6,6 +6,7 @@ let isPaused = false;
 let isLoop = false;
 let isMute = false;
 let isDarkTheme = false;
+let masterVolume = 1.0;
 
 let audioSources = defaultSources;
 
@@ -319,7 +320,7 @@ function playRandomAudio() {
         });
     });
     window.audioPlayer.loop = isLoop;
-    window.audioPlayer.volume = 0.8; // 80% volume
+    window.audioPlayer.volume = masterVolume;
 }
 
 function previousTrack() {
@@ -429,16 +430,24 @@ function toggleLoop() {
 }
 
 function toggleMute() {
-    console.log(`Toggling mute background music to ${!isMute}`);
+    isMute = !isMute;
+    console.log(`Toggling mute to ${isMute}`);
+    
     if (window.audioPlayer) {
-        isMute = !isMute;
         window.audioPlayer.muted = isMute;
-        const muteToggleButton = document.querySelector('#mute');
-        if (isMute) {
-            muteToggleButton.classList.add('dark-theme');
-        } else {
-            muteToggleButton.classList.remove('dark-theme');
+    }
+    
+    ['sun', 'rain', 'snow', 'typing', 'cafe', 'office', 'thunder', 'fire', 'wave'].forEach(fx => {
+        if (window[`${fx}Audio`]) {
+            window[`${fx}Audio`].muted = isMute;
         }
+    });
+
+    const muteToggleButton = document.querySelector('#mute');
+    if (isMute) {
+        muteToggleButton.classList.add('dark-theme');
+    } else {
+        muteToggleButton.classList.remove('dark-theme');
     }
 }
 
@@ -453,7 +462,7 @@ function toggleSun() {
 
     if (!window.sunAudio) {
         window.sunAudio = new Audio(sunSoundFx);
-        window.sunAudio.volume = 0.5;
+        window.sunAudio.volume = parseFloat(document.getElementById('sunVolume').value) * masterVolume;
         window.sunAudio.loop = true;
     }
     
@@ -533,7 +542,7 @@ function toggleRain() {
     const rainToggle = document.querySelector('#rainToggle');
     if (!window.rainAudio) {
         window.rainAudio = new Audio(rainSoundFx);
-        window.rainAudio.volume = 0.5;
+        window.rainAudio.volume = parseFloat(document.getElementById('rainVolume').value) * masterVolume;
         window.rainAudio.loop = true;
     }
 
@@ -562,7 +571,7 @@ function toggleSnow() {
     const snowToggle = document.querySelector('#snowToggle');
     if (!window.snowAudio) {
         window.snowAudio = new Audio(snowSoundFx);
-        window.snowAudio.volume = 0.5;
+        window.snowAudio.volume = parseFloat(document.getElementById('snowVolume').value) * masterVolume;
         window.snowAudio.loop = true;
     }
 
@@ -591,7 +600,7 @@ function toggleThunder() {
 
     if (!window.thunderAudio) {
         window.thunderAudio = new Audio(thunderSoundFx);
-        window.thunderAudio.volume = 0.6;
+        window.thunderAudio.volume = parseFloat(document.getElementById('thunderVolume').value) * masterVolume;
         window.thunderAudio.loop = true;
     }
 
@@ -611,7 +620,7 @@ function toggleFire() {
 
     if (!window.fireAudio) {
         window.fireAudio = new Audio(burningWoodSoundFx);
-        window.fireAudio.volume = 0.6;
+        window.fireAudio.volume = parseFloat(document.getElementById('fireVolume').value) * masterVolume;
         window.fireAudio.loop = true;
     }
 
@@ -645,7 +654,7 @@ function toggleWave() {
 
     if (!window.waveAudio) {
         window.waveAudio = new Audio(wavesSoundFx);
-        window.waveAudio.volume = 0.6;
+        window.waveAudio.volume = parseFloat(document.getElementById('waveVolume').value) * masterVolume;
         window.waveAudio.loop = true;
     }
 
@@ -666,7 +675,7 @@ function toggleTyping() {
 
     if (!window.typingAudio) {
         window.typingAudio = new Audio(typingSoundFx);
-        window.typingAudio.volume = 0.6;
+        window.typingAudio.volume = parseFloat(document.getElementById('typingVolume').value) * masterVolume;
         window.typingAudio.loop = true;
     }
 
@@ -686,7 +695,7 @@ function toggleCafe() {
 
     if (!window.cafeAudio) {
         window.cafeAudio = new Audio(cafeSoundFx);
-        window.cafeAudio.volume = 0.7;
+        window.cafeAudio.volume = parseFloat(document.getElementById('cafeVolume').value) * masterVolume;
         window.cafeAudio.loop = true;
     }
 
@@ -706,7 +715,7 @@ function toggleOffice() {
 
     if (!window.officeAudio) {
         window.officeAudio = new Audio(officeSoundFx);
-        window.officeAudio.volume = 0.7;
+        window.officeAudio.volume = parseFloat(document.getElementById('officeVolume').value) * masterVolume;
         window.officeAudio.loop = true;
     }
 
@@ -736,11 +745,31 @@ window.onload = async function() {
         if (slider) {
             slider.addEventListener('input', (e) => {
                 if (window[`${fx}Audio`]) {
-                    window[`${fx}Audio`].volume = parseFloat(e.target.value);
+                    window[`${fx}Audio`].volume = parseFloat(e.target.value) * masterVolume;
                 }
             });
         }
     });
+
+    const masterSlider = document.getElementById('masterVolume');
+    if (masterSlider) {
+        masterSlider.addEventListener('input', (e) => {
+            masterVolume = parseFloat(e.target.value);
+            
+            // Update music player
+            if (window.audioPlayer) {
+                window.audioPlayer.volume = masterVolume;
+            }
+            
+            // Update all active ambient sounds
+            ['sun', 'rain', 'snow', 'typing', 'cafe', 'office', 'thunder', 'fire', 'wave'].forEach(fx => {
+                const s = document.getElementById(`${fx}Volume`);
+                if (s && window[`${fx}Audio`]) {
+                    window[`${fx}Audio`].volume = parseFloat(s.value) * masterVolume;
+                }
+            });
+        });
+    }
 
     loadAccomplishments();
     

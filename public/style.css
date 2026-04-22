@@ -243,6 +243,12 @@ body:not(.dark-theme) .sky-background.active {
   outline: none;
   transition: width 0.3s ease;
 }
+#masterVolume {
+  width: 60px;
+}
+#masterVolume:hover {
+  width: 100px;
+}
 .dark-theme .volume-slider { background: rgba(255,255,255,0.1); }
 .volume-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
