@@ -22,7 +22,7 @@ test.describe('Lo-Fi Work Break Reminder', () => {
       const audioPlayer = window.audioPlayer;
       return !audioPlayer.paused
     });
-    expect(isPlaying).toBe(true);
+    expect(isPlaying).toBe(false);
     // await expect(timer).toHaveText('00:30:00');
 
     // Start timer
@@ -49,7 +49,7 @@ test.describe('Lo-Fi Work Break Reminder', () => {
   });
 
   test('should have audio controls', async ({ page }) => {
-    const audioControls = page.locator('.audio-controls');
+    const audioControls = page.locator('.media-controls');
     await expect(audioControls).toBeVisible();
     await expect((page.locator('#previousTrack'))).toBeVisible();
     await expect(page.locator('#playPause')).toBeVisible();

@@ -1,96 +1,100 @@
 const express = require('express');
-const fs = require('fs');
 const path = require('path');
+const low = require('lowdb');
+const FileSync = require('lowdb/adapters/FileSync');
+
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
+
+// Setup lowdb
+const adapter = new FileSync(path.join(__dirname, 'data', 'accomplishments.json'));
+const db = low(adapter);
+
+// Set some defaults (required if your JSON file is empty)
+db.defaults({ accomplishments: [] }).write();
 
 // Middleware to parse JSON bodies
 app.use(express.json());
 
-// Serve static files (your HTML file)
+// Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Endpoint to handle form submissions
 app.post('/save-accomplishment', (req, res) => {
-  const newAccomplishment = req.body;
-
-  // Read the existing accomplishments
-  fs.readFile('./data/accomplishments.json', 'utf8', (err, data) => {
-    if (err) {
-      console.error('Error reading file:', err);
-      return res.status(500).json({ error: 'Internal server error' });
+  try {
+    const newAccomplishment = req.body;
+    
+    // Input validation
+    if (!newAccomplishment || typeof newAccomplishment.text !== 'string' || !newAccomplishment.text.trim()) {
+      return res.status(400).json({ error: 'Invalid or missing accomplishment text' });
+    }
+    if (typeof newAccomplishment.time !== 'string' || !newAccomplishment.time.trim()) {
+      return res.status(400).json({ error: 'Invalid or missing accomplishment time' });
     }
 
-    // Parse the existing data and add the new accomplishment
-    const accomplishments = JSON.parse(data || '[]');
-    accomplishments.push(newAccomplishment);
-
-    // Write the updated data back to the file
-    fs.writeFile('./data/accomplishments.json', JSON.stringify(accomplishments, null, 2), (err) => {
-      if (err) {
-        console.error('Error writing file:', err);
-        return res.status(500).json({ error: 'Internal server error' });
-      }
-
-      res.json({ message: 'Accomplishment saved successfully' });
-    });
-  });
+    // Save to lowdb
+    db.get('accomplishments')
+      .push(newAccomplishment)
+      .write();
+      
+    res.json({ message: 'Accomplishment saved successfully' });
+  } catch (err) {
+    console.error('Error saving accomplishment:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
+// Endpoint to get all accomplishments
 app.get('/accomplishments', (req, res) => {
-  fs.readFile('./data/accomplishments.json', 'utf8', (err, data) => {
-    if (err) {
-      console.error('Error reading file:', err);
-      return res.status(500).json({ error: 'Internal server error' });
+  try {
+    // If the old raw JSON was just an array, we might need to handle it.
+    // Assuming the file is now structured with { accomplishments: [...] } 
+    // due to defaults(), or if it was just an array, we need to adapt.
+    // Let's ensure compatibility if the file already had an array instead of object.
+    let data = db.getState();
+    if (Array.isArray(data)) {
+        // Migration from old array format
+        db.setState({ accomplishments: data }).write();
     }
-
-    // Send the accomplishments data as JSON
-    res.json(JSON.parse(data || '[]'));
-  });
+    
+    const accomplishments = db.get('accomplishments').value() || [];
+    res.json(accomplishments);
+  } catch (err) {
+    console.error('Error reading accomplishments:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
+
 // Endpoint to clear accomplishments
 app.post('/clear-accomplishments', (req, res) => {
-  // Write an empty array to the file
-  fs.writeFile('./data/accomplishments.json', '[]', (err) => {
-    if (err) {
-      console.error('Error clearing accomplishments:', err);
-      return res.status(500).json({ error: 'Internal server error' });
-    }
-
+  try {
+    db.set('accomplishments', []).write();
     res.json({ message: 'Accomplishments cleared successfully' });
-  });
+  } catch (err) {
+    console.error('Error clearing accomplishments:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 // Endpoint to delete a specific accomplishment
 app.post('/delete-accomplishment', (req, res) => {
-  const indexToDelete = req.body.index;
+  try {
+    const indexToDelete = req.body.index;
+    const accomplishments = db.get('accomplishments').value();
 
-  fs.readFile('./data/accomplishments.json', 'utf8', (err, data) => {
-    if (err) {
-      console.error('Error reading file:', err);
-      return res.status(500).json({ error: 'Internal server error' });
-    }
-
-    let accomplishments = JSON.parse(data || '[]');
-
-    // Check if the index is valid
     if (indexToDelete < 0 || indexToDelete >= accomplishments.length) {
       return res.status(400).json({ error: 'Invalid index' });
     }
 
-    // Remove the accomplishment at the specified index
+    // Remove by index and rewrite
     accomplishments.splice(indexToDelete, 1);
-
-    // Write the updated data back to the file
-    fs.writeFile('./data/accomplishments.json', JSON.stringify(accomplishments, null, 2), (err) => {
-      if (err) {
-        console.error('Error writing file:', err);
-        return res.status(500).json({ error: 'Internal server error' });
-      }
-
-      res.json({ message: 'Accomplishment deleted successfully' });
-    });
-  });
+    db.set('accomplishments', accomplishments).write();
+    
+    res.json({ message: 'Accomplishment deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting accomplishment:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 // Start the server

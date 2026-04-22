@@ -1,87 +1,164 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="en">
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lofi Work Log - Zen Focus</title>
     <link rel="shortcut icon" href="#">
-    <title>Lo-Fi Work Break Reminder with music</title>
     <link rel="stylesheet" href="style.css" >
-    <script type="text/javascript" src="script.js"></script>
+    <script defer src="audio-data.js"></script>
+    <script defer src="script.js"></script>
   </head>
   <body>
+    <!-- Background layers -->
     <div class="sky-background"></div>
     <div class="sun-glare"></div>
     <div class="rain"></div>
     <div class="snow"></div>
-    <div class="weather-controls">
-      <button class="weather-control" id="sunToggle" onclick="toggleSun()"><i class="fas fa-sun"></i></button>
-      <button class="weather-control" id="rainToggle" onclick="toggleRain()"><i class="fas fa-cloud-rain"></i></button>
-      <button class="weather-control" id="snowToggle" onclick="toggleSnow()"><i class="fas fa-snowflake"></i></button>
-      <button class="weather-control" id="moonToggle" onclick="toggleMoon()"><i class="fas fa-moon"></i></button>
-    </div>
-    <div class="fx-controls">
-      <button class="fx-control" id="typingToggle" onclick="toggleTyping()"><i class="fas fa-keyboard"></i></button>
-      <button class="fx-control" id="cafeToggle" onclick="toggleCafe()"><i class="fas fa-coffee"></i></button>
-      <button class="fx-control" id="officeToggle" onclick="toggleOffice()"><i class="fas fa-briefcase"></i></button>
-      <button class="fx-control" id="thunderToggle" onclick="toggleThunder()"><i class="fas fa-bolt"></i></button>
-      <button class="fx-control" id="fireToggle" onclick="toggleFire()"><i class="fas fa-fire"></i></button>
-      <button class="fx-control" id="waveToggle" onclick="toggleWave()"><i class="fas fa-water"></i></button>
-    </div>
-    <div id="timer-container">
-      <div id="timer">00:25:00</div>
-      <div id="timer-controls">
-        <input type="number" id="custom-hours" class="custom-time-input" min="0" max="23" value="0" placeholder="HH" oninput="this.value = Math.min(Math.max(this.value, 0), 23)">
-        <input type="number" id="custom-minutes" class="custom-time-input" min="0" max="59" value="25" placeholder="MM" oninput="this.value = Math.min(Math.max(this.value, 0), 59)">
-        <input type="number" id="custom-seconds" class="custom-time-input" min="0" max="59" value="0" placeholder="SS" oninput="this.value = Math.min(Math.max(this.value, 0), 59)">
-        <button class="timer-control" onclick="customizeTimer()">Set</button>
-        <button class="timer-control" id="pauseResume" onclick="pauseResumeTimer()">Play</button>
-        <button class="timer-control" onclick="resetTimer()">Reset</button>
+
+    <main class="app-wrapper glass">
+      <header class="app-header">
+        <h1 class="logo">Lofi Log</h1>
+        <button id="moonToggle" class="icon-btn moon-toggle" aria-label="Toggle Dark Theme" onclick="toggleMoon()">
+          <i class="fas fa-moon"></i>
+        </button>
+      </header>
+
+      <!-- Timer Centerpiece -->
+      <section id="timer-focus">
+        <div id="timer" class="timer-display mono">00:25:00</div>
+        
+        <div class="timer-config">
+          <div class="input-row">
+            <input type="number" id="custom-hours" class="time-field" min="0" max="23" value="0" placeholder="HH" oninput="this.value = Math.min(Math.max(this.value, 0), 23)">
+            <span class="sep">:</span>
+            <input type="number" id="custom-minutes" class="time-field" min="0" max="59" value="25" placeholder="MM" oninput="this.value = Math.min(Math.max(this.value, 0), 59)">
+            <span class="sep">:</span>
+            <input type="number" id="custom-seconds" class="time-field" min="0" max="59" value="0" placeholder="SS" oninput="this.value = Math.min(Math.max(this.value, 0), 59)">
+          </div>
+          
+          <div class="btn-row">
+            <button class="btn btn-secondary" onclick="customizeTimer()">Set</button>
+            <button class="btn btn-primary" id="pauseResume" onclick="pauseResumeTimer()">Play</button>
+            <button class="btn btn-secondary" onclick="resetTimer()">Reset</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Control Center -->
+      <section class="control-center">
+        <div class="control-panel glass">
+          <div class="panel-section">
+            <h4>Weather</h4>
+            <div class="control-grid">
+              <div class="control-item">
+                <button class="icon-btn weather-control" id="sunToggle" aria-label="Toggle Sun Sound" onclick="toggleSun()"><i class="fas fa-sun"></i></button>
+                <input type="range" id="sunVolume" class="volume-slider" min="0" max="1" step="0.05" value="0.5">
+              </div>
+              <div class="control-item">
+                <button class="icon-btn weather-control" id="rainToggle" aria-label="Toggle Rain Sound" onclick="toggleRain()"><i class="fas fa-cloud-rain"></i></button>
+                <input type="range" id="rainVolume" class="volume-slider" min="0" max="1" step="0.05" value="0.5">
+              </div>
+              <div class="control-item">
+                <button class="icon-btn weather-control" id="snowToggle" aria-label="Toggle Snow Sound" onclick="toggleSnow()"><i class="fas fa-snowflake"></i></button>
+                <input type="range" id="snowVolume" class="volume-slider" min="0" max="1" step="0.05" value="0.5">
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-section">
+            <h4>Environment</h4>
+            <div class="control-grid">
+              <div class="control-item">
+                <button class="icon-btn fx-control" id="typingToggle" aria-label="Toggle Typing Sound" onclick="toggleTyping()"><i class="fas fa-keyboard"></i></button>
+                <input type="range" id="typingVolume" class="volume-slider" min="0" max="1" step="0.05" value="0.6">
+              </div>
+              <div class="control-item">
+                <button class="icon-btn fx-control" id="cafeToggle" aria-label="Toggle Cafe Sound" onclick="toggleCafe()"><i class="fas fa-coffee"></i></button>
+                <input type="range" id="cafeVolume" class="volume-slider" min="0" max="1" step="0.05" value="0.7">
+              </div>
+              <div class="control-item">
+                <button class="icon-btn fx-control" id="officeToggle" aria-label="Toggle Office Sound" onclick="toggleOffice()"><i class="fas fa-briefcase"></i></button>
+                <input type="range" id="officeVolume" class="volume-slider" min="0" max="1" step="0.05" value="0.7">
+              </div>
+              <div class="control-item">
+                <button class="icon-btn fx-control" id="thunderToggle" aria-label="Toggle Thunder Sound" onclick="toggleThunder()"><i class="fas fa-bolt"></i></button>
+                <input type="range" id="thunderVolume" class="volume-slider" min="0" max="1" step="0.05" value="0.6">
+              </div>
+              <div class="control-item">
+                <button class="icon-btn fx-control" id="fireToggle" aria-label="Toggle Fire Sound" onclick="toggleFire()"><i class="fas fa-fire"></i></button>
+                <input type="range" id="fireVolume" class="volume-slider" min="0" max="1" step="0.05" value="0.6">
+              </div>
+              <div class="control-item">
+                <button class="icon-btn fx-control" id="waveToggle" aria-label="Toggle Wave Sound" onclick="toggleWave()"><i class="fas fa-water"></i></button>
+                <input type="range" id="waveVolume" class="volume-slider" min="0" max="1" step="0.05" value="0.6">
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-section">
+            <h4>Select Vibe</h4>
+            <select id="audioSourceDropdown" class="vibe-select" onchange="changeAudioSource()">
+              <option value="default">Default Music</option>
+              <option value="ghibliInspired">Ghibli Inspired Piano</option>
+              <option value="lazyLofi">Lazy Lofi</option>
+              <option value="lofiChill">Lo-Fi Chill</option>
+              <option value="jazzBeats">Jazz Beats</option>
+              <option value="sad">Sad</option>
+              <option value="goodVibe">Good Vibe</option>
+              <option value="timelapse">Timelapse</option>
+              <option value="calm">Calm</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- Accomplishments -->
+      <section id="accomplishments" class="accomplishments-area">
+        <div class="area-header">
+          <h3>Daily Log</h3>
+          <div class="log-actions">
+            <button class="btn-small" onclick="showReminder()">Add</button>
+            <button class="btn-small" onclick="clearAccomplishments()">Clear</button>
+            <button class="btn-small" onclick="exportAccomplishments()">Export</button>
+          </div>
+        </div>
+        <ul id="accomplishmentsList" class="log-list"></ul>
+      </section>
+    </main>
+
+    <!-- Music Player Dock -->
+    <footer class="audio-dock glass">
+      <div class="vinyl-display">
+        <div class="vinyl-record">
+          <div class="vinyl-label" id="vinyl-label-text">Lo-Fi</div>
+        </div>
       </div>
-    </div>
-
-    <div class="popup" id="reminderPopup">
-      <button class="close-button" onclick="closeReminderPopup()">&#x2715;</button>
-      <h1>Time for a Break!</h1>
-      <p>What have you accomplished in the last session?</p>
-      <textarea id="accomplishmentInput" placeholder="Enter your accomplishments..."></textarea>
-      <button onclick="submitAccomplishment()">Submit</button>
-      <button>Submit & Start Break</button>
-    </div>
-    <div id="audio-source-selector">
-      <div>Choose your Vibe</div>
-      <select id="audioSourceDropdown" onchange="changeAudioSource()">
-        <option value="default">Default Music</option>
-        <option value="ghibliInspired">Ghibli Inspired Piano</option>
-        <option value="lazyLofi">Lazy Lofi</option>
-        <option value="lofiChill">Lo-Fi Chill</option>
-        <option value="jazzBeats">Jazz Beats</option>
-        <option value="sad">Sad</option>
-        <option value="goodVibe">Good Vibe</option>
-        <option value="timelapse">Timelapse</option>
-        <option value="calm">Calm</option>
-      </select>
-    </div>
-    
-    <div id="accomplishments">
-      <h2>Today's Accomplishments</h2>
-      <button class="accomplishment-control" onclick="showReminder()">Add Accomplishment</button>
-      <button class="accomplishment-control" onclick="clearAccomplishments()">Clear All</button>
-      <button class="accomplishment-control" onclick="exportAccomplishments()">Export File</button>
-      <ul id="accomplishmentsList"></ul>
-
-    </div>
-
-    <div class="vinyl-player">
-      <div class="vinyl-record">
-        <div class="vinyl-label" id="vinyl-label-text">Lo-Fi</div>
+      
+      <div class="media-controls">
+        <button class="media-btn" id="previousTrack" aria-label="Previous" onclick="previousTrack()"><i class="fas fa-step-backward"></i></button>
+        <button class="media-btn play-pause-btn" id="playPause" aria-label="Play/Pause" onclick="pauseResumeTimer()"><i id="playPauseIcon" class="fas fa-play"></i></button>
+        <button class="media-btn" id="nextTrack" aria-label="Next" onclick="nextTrack()"><i class="fas fa-step-forward"></i></button>
       </div>
-    </div>
-    <div class="audio-controls">
-      <button class="audio-control" id="previousTrack" onclick="previousTrack()"><i class="fas fa-step-backward"></i></button>
-      <button class="audio-control" id="playPause" onclick="pauseResumeTimer()"><i id="playPauseIcon" class="fas fa-play"></i></button>
-      <button class="audio-control" id="nextTrack" onclick="nextTrack()"><i class="fas fa-step-forward"></i></button>
-      <button class="audio-control" id="loopToggle" onclick="toggleLoop()"><i class="fas fa-sync"></i></button>
-      <button class="audio-control" id="mute" onclick="toggleMute()"><i class="fas fa-volume-mute"></i></button>
+
+      <div class="utility-controls">
+        <button class="media-btn" id="loopToggle" aria-label="Toggle Loop" onclick="toggleLoop()"><i class="fas fa-sync"></i></button>
+        <button class="media-btn" id="mute" aria-label="Mute" onclick="toggleMute()"><i class="fas fa-volume-mute"></i></button>
+      </div>
+    </footer>
+
+    <!-- Popup -->
+    <div class="popup-overlay" id="reminderPopup">
+      <div class="popup-card glass">
+        <button class="close-btn" aria-label="Close" onclick="closeReminderPopup()">&#x2715;</button>
+        <h3>Focus Session Complete</h3>
+        <p>What did you achieve?</p>
+        <textarea id="accomplishmentInput" class="popup-input" placeholder="Reflect on your focus..."></textarea>
+        <div class="popup-btns">
+          <button class="btn btn-primary" onclick="submitAccomplishment()">Save Log</button>
+          <button class="btn btn-secondary" onclick="submitAccomplishmentAndBreak()">Save & Break</button>
+        </div>
+      </div>
     </div>
   </body>
 </html>
