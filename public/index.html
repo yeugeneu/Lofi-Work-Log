@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="style.css" >
     <script defer src="audio-data.js"></script>
     <script defer src="script.js"></script>
+    <script src="https://sdk.scdn.co/spotify-player.js"></script>
   </head>
   <body>
     <!-- Background layers -->
@@ -99,9 +100,15 @@
           </div>
 
           <div class="panel-section">
-            <h4>Select Vibe</h4>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <h4 style="margin: 0;">Select Vibe</h4>
+              <button id="spotifyLoginBtn" class="btn-small" onclick="window.location.href='/login'" title="Login to Spotify Premium">
+                <i class="fab fa-spotify"></i> Login
+              </button>
+            </div>
             <select id="audioSourceDropdown" class="vibe-select" onchange="changeAudioSource()">
               <option value="default">Default Music</option>
+              <option value="spotify">Spotify Mode 🟢</option>
               <option value="focusMusic">Focus</option>
               <option value="cafeMusic">Cafe</option>
               <option value="ghibliInspired">Ghibli Inspired Piano</option>

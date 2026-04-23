@@ -1,10 +1,28 @@
+require('dotenv').config();
 const express = require('express');
+const https = require('https');
+const fs = require('fs');
 const path = require('path');
 const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
+const axios = require('axios');
+const querystring = require('querystring');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// SSL Certificate options
+const options = {
+  key: fs.readFileSync(path.join(__dirname, 'server.key')),
+  cert: fs.readFileSync(path.join(__dirname, 'server.cert'))
+};
+
+const client_id = process.env.SPOTIFY_CLIENT_ID;
+const client_secret = process.env.SPOTIFY_CLIENT_SECRET;
+const redirect_uri = process.env.REDIRECT_URI;
+
+let access_token = null;
+let refresh_token = null;
 
 // Setup lowdb
 const adapter = new FileSync(path.join(__dirname, 'data', 'accomplishments.json'));
@@ -97,7 +115,79 @@ app.post('/delete-accomplishment', (req, res) => {
   }
 });
 
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+// --- Spotify Auth Endpoints ---
+
+app.get('/login', (req, res) => {
+  const scope = 'streaming user-read-email user-read-private user-modify-playback-state';
+  res.redirect('https://accounts.spotify.com/authorize?' +
+    querystring.stringify({
+      response_type: 'code',
+      client_id: client_id,
+      scope: scope,
+      redirect_uri: redirect_uri
+    }));
+});
+
+app.get('/callback', async (req, res) => {
+  const code = req.query.code || null;
+
+  try {
+    const response = await axios({
+      method: 'post',
+      url: 'https://accounts.spotify.com/api/token',
+      data: querystring.stringify({
+        code: code,
+        redirect_uri: redirect_uri,
+        grant_type: 'authorization_code'
+      }),
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
+        'Authorization': 'Basic ' + (new Buffer.from(client_id + ':' + client_secret).toString('base64'))
+      }
+    });
+
+    access_token = response.data.access_token;
+    refresh_token = response.data.refresh_token;
+    res.redirect('/');
+  } catch (error) {
+    console.error('Error exchanging code for token:', error.response ? error.response.data : error.message);
+    res.status(500).send('Authentication Error');
+  }
+});
+
+app.get('/auth/token', (req, res) => {
+  res.json({ access_token });
+});
+
+app.get('/auth/refresh_token', async (req, res) => {
+  if (!refresh_token) {
+    return res.status(400).json({ error: 'No refresh token available' });
+  }
+  try {
+    const response = await axios({
+      method: 'post',
+      url: 'https://accounts.spotify.com/api/token',
+      data: querystring.stringify({
+        grant_type: 'refresh_token',
+        refresh_token: refresh_token
+      }),
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
+        'Authorization': 'Basic ' + (new Buffer.from(client_id + ':' + client_secret).toString('base64'))
+      }
+    });
+
+    access_token = response.data.access_token;
+    res.json({ access_token });
+  } catch (error) {
+    console.error('Error refreshing token:', error.response ? error.response.data : error.message);
+    res.status(500).send('Refresh Token Error');
+  }
+});
+
+// --- End Spotify Auth Endpoints ---
+
+// Start the server over HTTPS
+https.createServer(options, app).listen(PORT, () => {
+  console.log(`Server is running on https://localhost:${PORT}`);
 });

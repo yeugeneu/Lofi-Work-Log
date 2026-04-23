@@ -8,6 +8,12 @@ let isMute = false;
 let isDarkTheme = false;
 let masterVolume = 1.0;
 
+// Spotify Web Playback SDK variables
+let spotifyPlayer = null;
+let spotifyDeviceId = null;
+let isSpotifyMode = false;
+let spotifyAccessToken = null;
+
 let audioSources = defaultSources;
 
 const completeSoundFx = 'https://cdn.uppbeat.io/audio-files/d927511931994ce45cf5b95b34e23536/b8acdddc6e37f6b47b0057dbaf3b53af/9c3ce15f497635d0c185b92d34ce902c/STREAMING-level-complete-winner-piano-om-fx-1-00-06.mp3';
@@ -303,6 +309,11 @@ function pauseResumeTimer() {
     
     syncPlayPauseUI();
 
+    if (isSpotifyMode && spotifyPlayer) {
+        spotifyPlayer.togglePlay();
+        return;
+    }
+
     if (!window.audioPlayer) {
         playRandomAudio();
     }
@@ -373,6 +384,10 @@ function playRandomAudio() {
     window.audioPlayer.volume = masterVolume;
 }
 function previousTrack() {
+    if (isSpotifyMode && spotifyPlayer) {
+        spotifyPlayer.previousTrack();
+        return;
+    }
     if (window.audioPlayer) {
         const currentIndex = audioSources.indexOf(window.audioPlayer.src);
         const newIndex = (currentIndex - 1 + audioSources.length) % audioSources.length;
@@ -388,6 +403,10 @@ function previousTrack() {
 }
 
 function nextTrack() {
+    if (isSpotifyMode && spotifyPlayer) {
+        spotifyPlayer.nextTrack();
+        return;
+    }
     if (window.audioPlayer) {
         const currentIndex = audioSources.indexOf(window.audioPlayer.src);
         const newIndex = (currentIndex + 1) % audioSources.length;
@@ -406,6 +425,31 @@ function changeAudioSource() {
     const selectedSource = document.querySelector('#audioSourceDropdown').value;
     const vinylLabel = document.querySelector('#vinyl-label-text');
     console.info(`Setting audio source to ${selectedSource}`);
+
+    // Stop current local player if it exists
+    if (window.audioPlayer) {
+        window.audioPlayer.pause();
+    }
+
+    if (selectedSource === 'spotify') {
+        if (!spotifyAccessToken) {
+            alert('Please login to Spotify first!');
+            document.querySelector('#audioSourceDropdown').value = 'default';
+            changeAudioSource();
+            return;
+        }
+        isSpotifyMode = true;
+        vinylLabel.textContent = 'Spotify';
+        vinylLabel.style.backgroundColor = '#1DB954'; // Spotify Green
+        transferSpotifyPlayback();
+        return;
+    }
+
+    isSpotifyMode = false;
+    // If we were in Spotify mode, pause the Spotify player
+    if (spotifyPlayer) {
+        spotifyPlayer.pause();
+    }
 
     switch(selectedSource) {
         case 'focusMusic':
@@ -832,6 +876,9 @@ window.onload = async function() {
             if (window.audioPlayer) {
                 window.audioPlayer.volume = masterVolume;
             }
+            if (spotifyPlayer) {
+                spotifyPlayer.setVolume(masterVolume);
+            }
             
             // Update all active ambient sounds
             ['sun', 'rain', 'snow', 'typing', 'cafe', 'office', 'thunder', 'fire', 'wave'].forEach(fx => {
@@ -866,3 +913,85 @@ window.onload = async function() {
 
     syncPlayPauseUI();
 };
+
+// --- Spotify Web Playback SDK Implementation ---
+
+window.onSpotifyWebPlaybackSDKReady = () => {
+    fetchSpotifyToken();
+};
+
+async function fetchSpotifyToken() {
+    try {
+        const response = await fetch('/auth/token');
+        const data = await response.json();
+        if (data.access_token) {
+            spotifyAccessToken = data.access_token;
+            initSpotifyPlayer();
+            const loginBtn = document.getElementById('spotifyLoginBtn');
+            if (loginBtn) {
+                loginBtn.innerHTML = '<i class="fab fa-spotify"></i> Connected';
+                loginBtn.classList.add('dark-theme');
+                loginBtn.onclick = null;
+            }
+        }
+    } catch (err) {
+        console.error('Failed to fetch Spotify token:', err);
+    }
+}
+
+function initSpotifyPlayer() {
+    spotifyPlayer = new Spotify.Player({
+        name: 'Focus Desk Web Player',
+        getOAuthToken: cb => { cb(spotifyAccessToken); },
+        volume: masterVolume
+    });
+
+    spotifyPlayer.addListener('initialization_error', ({ message }) => { console.error('Spotify Init Error:', message); });
+    spotifyPlayer.addListener('authentication_error', ({ message }) => { console.error('Spotify Auth Error:', message); });
+    spotifyPlayer.addListener('account_error', ({ message }) => { console.error('Spotify Account Error:', message); });
+    spotifyPlayer.addListener('playback_error', ({ message }) => { console.error('Spotify Playback Error:', message); });
+
+    spotifyPlayer.addListener('player_state_changed', state => {
+        if (!state) return;
+        
+        const { current_track } = state.track_window;
+        const vinylLabel = document.querySelector('#vinyl-label-text');
+        if (vinylLabel && current_track && isSpotifyMode) {
+            vinylLabel.textContent = current_track.name;
+        }
+        
+        isPaused = state.paused;
+        syncPlayPauseUI();
+    });
+
+    spotifyPlayer.addListener('ready', ({ device_id }) => {
+        console.log('Spotify Player Ready with Device ID', device_id);
+        spotifyDeviceId = device_id;
+    });
+
+    spotifyPlayer.addListener('not_ready', ({ device_id }) => {
+        console.log('Spotify Player Device ID has gone offline', device_id);
+    });
+
+    spotifyPlayer.connect();
+}
+
+async function transferSpotifyPlayback() {
+    if (!spotifyDeviceId || !spotifyAccessToken) return;
+    
+    try {
+        await fetch('https://api.spotify.com/v1/me/player', {
+            method: 'PUT',
+            body: JSON.stringify({
+                device_ids: [spotifyDeviceId],
+                play: true,
+            }),
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${spotifyAccessToken}`
+            },
+        });
+    } catch (err) {
+        console.error('Error transferring Spotify playback:', err);
+    }
+}
