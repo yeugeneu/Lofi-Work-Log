@@ -29,6 +29,7 @@
       <!-- Timer Centerpiece -->
       <section id="timer-focus">
         <img id="tomato-icon" class="tomato-icon" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbHFsdXU4Znl3MTIzd2tubmhsdTV6aHI1OTVkeWJrenI4MmJmdTBvcyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3OBg5pc9KnENjuwTDV/giphy.gif" alt="Slicing Tomato" />
+        <div id="break-icon" class="break-icon"><i class="fas fa-coffee"></i></div>
         <div id="timer" class="timer-display mono">00:25:00</div>
         
         <div class="timer-config">
@@ -45,6 +46,10 @@
             <button class="btn btn-primary" id="pauseResume" onclick="pauseResumeTimer()">Play</button>
             <button class="btn btn-secondary" onclick="resetTimer()">Reset</button>
           </div>
+        </div>
+        <div class="break-controls">
+          <button id="breakPauseResume" class="btn btn-primary" onclick="pauseResumeTimer()">Play</button>
+          <button id="skipBreak" class="btn btn-secondary skip-break-btn" onclick="skipBreak()">Skip Break</button>
         </div>
       </section>
 
@@ -99,7 +104,7 @@
             </div>
           </div>
 
-          <div class="panel-section">
+          <div class="panel-section vibe-panel">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
               <h4 style="margin: 0;">Select Vibe</h4>
               <button id="spotifyLoginBtn" class="btn-small" onclick="window.location.href='/login'" title="Login to Spotify Premium">

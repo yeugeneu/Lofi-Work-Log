@@ -726,3 +726,108 @@ body:not(.dark-theme) .sky-background.active {
 }
 @keyframes fall { to { transform: translateY(100vh); } }
 @keyframes snowfall { to { transform: translateY(100vh) rotate(360deg); } }
+
+/* Break Mode Styles */
+body.break-mode {
+  --bg-color: #f0f7f4;
+  --text-main: #2c3e50;
+  --accent-color: #51b49d;
+  --accent-hover: #3d8c7a;
+  --glass-bg: rgba(255, 255, 255, 0.9);
+  --glass-border: #e0eee0;
+  --shadow: 0 20px 50px rgba(81, 180, 157, 0.15);
+}
+
+.break-mode .app-wrapper {
+  border-color: #c8e6c9;
+  box-shadow: 0 0 60px rgba(81, 180, 157, 0.2);
+}
+
+.break-mode .timer-display {
+  background: #1a2a23;
+  color: #51b49d;
+  text-shadow: 0 0 20px #51b49d;
+  border-color: #2d4a3e;
+}
+
+.break-mode .logo {
+  border-left-color: #51b49d;
+  color: #51b49d;
+}
+
+.break-icon {
+  display: none;
+  font-size: 4rem;
+  color: #51b49d;
+  margin: 0 auto 20px auto;
+  animation: float 3s ease-in-out infinite;
+}
+
+.break-mode .break-icon {
+  display: block;
+}
+
+.break-mode .tomato-icon {
+  display: none !important;
+}
+
+.break-mode .btn-primary {
+  background-color: #51b49d;
+  box-shadow: 0 4px 0 #3d8c7a, 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.break-mode .play-pause-btn {
+  background-color: #51b49d;
+  box-shadow: 0 6px 0 #3d8c7a, 0 8px 15px rgba(0,0,0,0.3);
+}
+
+.break-mode .vinyl-label {
+  background-color: #51b49d !important;
+}
+
+.break-mode .vibe-panel,
+.break-mode .timer-config,
+.break-mode .control-center,
+.break-mode .accomplishments-area,
+.break-mode .moon-toggle,
+.break-mode .app-header,
+.break-mode .audio-dock {
+  display: none;
+}
+
+.break-controls {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.break-mode .break-controls {
+  display: flex;
+}
+
+.skip-break-btn {
+  margin: 0;
+}
+
+.break-mode .skip-break-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(81, 180, 157, 0.1);
+  color: #3d8c7a;
+  border: 1px solid #51b49d;
+  box-shadow: 0 4px 0 #3d8c7a;
+}
+
+.break-mode .skip-break-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #3d8c7a;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}

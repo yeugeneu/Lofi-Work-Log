@@ -3,10 +3,22 @@ let accomp = [];
 let timerSeconds = 1500; // 25 minutes default
 let timerInterval;
 let isPaused = true;
+
+// Expose to window for testing
+window.getTimerSeconds = () => timerSeconds;
+window.setTimerSeconds = (val) => timerSeconds = val;
+window.getIsPaused = () => isPaused;
+window.setIsPaused = (val) => isPaused = val;
+window.getIsBreakMode = () => isBreakMode;
 let isLoop = false;
 let isMute = false;
 let isDarkTheme = false;
 let masterVolume = 1.0;
+let isBreakMode = false;
+let previousAudioSources = [];
+let previousAudioDropdownValue = 'default';
+
+const breakMusicSources = ['https://cdn.pixabay.com/download/audio/2024/10/10/audio_e5a9bdb16f.mp3'];
 
 // Spotify Web Playback SDK variables
 let spotifyPlayer = null;
@@ -111,10 +123,41 @@ function submitAccomplishment() {
 function submitAccomplishmentAndBreak() {
     saveAccomplishmentFromInput();
     document.querySelector('#reminderPopup').style.display = 'none';
+    document.body.style.pointerEvents = 'auto';
+    
+    isBreakMode = true;
+    document.body.classList.add('break-mode');
+    
+    // Save current audio state to restore later
+    previousAudioSources = [...audioSources];
+    previousAudioDropdownValue = document.querySelector('#audioSourceDropdown').value;
+    
+    timerSeconds = 300; // 5 minutes
+    document.querySelector('#timer').textContent = '00:05:00';
+    
+    // Switch to dedicated break music
+    audioSources = breakMusicSources;
+    playRandomAudio();
+    
+    // Ensure it's paused as per user preference
+    isPaused = true;
+    syncPlayPauseUI();
+    
+    toggleTheme(); // Revert dark theme from showReminder
+    console.log("Break started (paused)...");
+}
+
+function skipBreak() {
+    isBreakMode = false;
+    document.body.classList.remove('break-mode');
+    
+    // Restore audio state
+    audioSources = previousAudioSources.length > 0 ? previousAudioSources : defaultSources;
+    document.querySelector('#audioSourceDropdown').value = previousAudioDropdownValue;
+    playRandomAudio();
+    
     resetTimer();
-    toggleTheme();
-    // Logic for starting break could be added here (e.g. 5 min timer)
-    console.log("Break started...");
+    console.log("Break skipped.");
 }
 
 function saveAccomplishmentFromInput() {
@@ -223,7 +266,42 @@ function updateTimer() {
     if (!isPaused) {
         timerSeconds--;
         if (timerSeconds <= 0) {
-            showReminder();
+            if (isBreakMode) {
+                // Break is over
+                isBreakMode = false;
+                document.body.classList.remove('break-mode');
+                
+                // Restore audio state
+                audioSources = previousAudioSources.length > 0 ? previousAudioSources : defaultSources;
+                document.querySelector('#audioSourceDropdown').value = previousAudioDropdownValue;
+                playRandomAudio();
+                
+                // Play completion sound
+                const completionSound = new Audio(completeSoundFx);
+                completionSound.play().catch(e => console.error('Error playing sound:', e));
+                
+                // Save "Break" accomplishment
+                const timestamp = new Date().toLocaleString();
+                const breakAccomplishment = { text: "Break", time: timestamp };
+                fetch('/save-accomplishment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(breakAccomplishment),
+                }).then(() => {
+                    accomp.push(breakAccomplishment);
+                    updateAccomplishmentsList();
+                });
+                
+                // Reset to focus session
+                resetTimer();
+                
+                // Notification
+                if (Notification.permission === 'granted') {
+                    new Notification("Break is over!", { body: "Ready to focus again?" });
+                }
+            } else {
+                showReminder();
+            }
             return;
         }
 
@@ -237,7 +315,15 @@ function updateTimer() {
 
 function resetTimer() {
     clearInterval(timerInterval);
-    timerSeconds = 1500; // Reset to 1 hour
+    
+    if (isBreakMode) {
+        audioSources = previousAudioSources.length > 0 ? previousAudioSources : defaultSources;
+        document.querySelector('#audioSourceDropdown').value = previousAudioDropdownValue;
+    }
+    
+    isBreakMode = false;
+    document.body.classList.remove('break-mode');
+    timerSeconds = 1500; // Reset to 25 minutes
     document.querySelector('#timer').textContent = '00:25:00';
     document.querySelector('#custom-hours').value = 0;
     document.querySelector('#custom-minutes').value = 25;
@@ -294,9 +380,11 @@ function formatTime(hours, minutes, seconds) {
 
 function syncPlayPauseUI() {
     const mainBtn = document.querySelector('#pauseResume');
+    const breakBtn = document.querySelector('#breakPauseResume');
     const dockIcon = document.querySelector('#playPauseIcon');
     
     if (mainBtn) mainBtn.textContent = isPaused ? 'Play' : 'Pause';
+    if (breakBtn) breakBtn.textContent = isPaused ? 'Play' : 'Pause';
     if (dockIcon) dockIcon.className = isPaused ? 'fas fa-play' : 'fas fa-pause';
     
     toggleVinylAnimation(!isPaused);
