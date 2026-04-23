@@ -1,7 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('http://localhost:3000'); // Adjust the URL if needed
+  await page.goto('/'); // Adjust the URL if needed
 });
 
 test.describe('Lo-Fi Work Break Reminder', () => {

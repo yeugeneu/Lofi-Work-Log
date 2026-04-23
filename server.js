@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const http = require('http');
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
@@ -12,10 +13,14 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // SSL Certificate options
-const options = {
-  key: fs.readFileSync(path.join(__dirname, 'server.key')),
-  cert: fs.readFileSync(path.join(__dirname, 'server.cert'))
-};
+const keyPath = path.join(__dirname, 'server.key');
+const certPath = path.join(__dirname, 'server.cert');
+const useHttps = fs.existsSync(keyPath) && fs.existsSync(certPath);
+
+const options = useHttps ? {
+  key: fs.readFileSync(keyPath),
+  cert: fs.readFileSync(certPath)
+} : {};
 
 const client_id = process.env.SPOTIFY_CLIENT_ID;
 const client_secret = process.env.SPOTIFY_CLIENT_SECRET;
@@ -187,7 +192,13 @@ app.get('/auth/refresh_token', async (req, res) => {
 
 // --- End Spotify Auth Endpoints ---
 
-// Start the server over HTTPS
-https.createServer(options, app).listen(PORT, () => {
-  console.log(`Server is running on https://localhost:${PORT}`);
-});
+// Start the server
+if (useHttps) {
+  https.createServer(options, app).listen(PORT, () => {
+    console.log(`Server is running on https://localhost:${PORT}`);
+  });
+} else {
+  http.createServer(app).listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+  });
+}
