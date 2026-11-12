@@ -16,23 +16,29 @@ https://yeugeneu.github.io/Lofi-Work-Log/public/index.html
 
 ### Prerequisites
 
+- [Node.js](https://nodejs.org/) (v20+ recommended)
+- (Optional) A Spotify Developer account and Premium subscription if using Spotify playback mode
 
 ### Installation
 
 1. Clone the repository:
-   ```
-   git clone https://github.com/yourusername/Lofi-Work-Log.git
+   ```bash
+   git clone https://github.com/yeugeneu/Lofi-Work-Log.git
    ```
 2. Navigate to the project directory:
-   ```
+   ```bash
    cd Lofi-Work-Log
    ```
 3. Install required dependencies:
-   ```
+   ```bash
    npm install
    ```
-4. Run:
+4. (Optional) Configure Spotify credentials by copying `.env.template` to `.env` and filling in your credentials:
+   ```bash
+   cp .env.template .env
    ```
+5. Run:
+   ```bash
    npm run dev
    ```
 

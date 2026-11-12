@@ -2,21 +2,63 @@
 let accomp = [];
 let timerSeconds = 1500; // 25 minutes default
 let timerInterval;
+let timerWorker = null;
+let targetEndTime = null;
 let isPaused = true;
+
+function startTimerLoop() {
+    stopTimerLoop();
+    if (typeof Worker !== 'undefined') {
+        try {
+            const blob = new Blob([
+                "const id = setInterval(() => postMessage('tick'), 1000); onmessage = (e) => { if (e.data === 'stop') clearInterval(id); };"
+            ], { type: 'application/javascript' });
+            const workerUrl = URL.createObjectURL(blob);
+            timerWorker = new Worker(workerUrl);
+            timerWorker.onmessage = () => updateTimer();
+            URL.revokeObjectURL(workerUrl);
+            return;
+        } catch (err) {
+            console.warn('Web Worker fallback to setInterval:', err);
+        }
+    }
+    timerInterval = setInterval(updateTimer, 1000);
+}
+
+function stopTimerLoop() {
+    if (timerWorker) {
+        timerWorker.postMessage('stop');
+        timerWorker.terminate();
+        timerWorker = null;
+    }
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+}
 
 // Expose to window for testing
 window.getTimerSeconds = () => timerSeconds;
-window.setTimerSeconds = (val) => timerSeconds = val;
+window.setTimerSeconds = (val) => {
+    timerSeconds = val;
+    if (!isPaused) {
+        targetEndTime = Date.now() + timerSeconds * 1000;
+    }
+};
 window.getIsPaused = () => isPaused;
-window.setIsPaused = (val) => isPaused = val;
+window.setIsPaused = (val) => {
+    isPaused = val;
+    targetEndTime = isPaused ? null : Date.now() + timerSeconds * 1000;
+};
 window.getIsBreakMode = () => isBreakMode;
 let isLoop = false;
 let isMute = false;
-let isDarkTheme = false;
 let masterVolume = 1.0;
 let isBreakMode = false;
 let previousAudioSources = [];
 let previousAudioDropdownValue = 'default';
+
+const AMBIENT_FX_KEYS = ['sun', 'rain', 'snow', 'typing', 'cafe', 'office', 'thunder', 'fire', 'wave'];
 
 const breakMusicSources = ['https://cdn.pixabay.com/download/audio/2024/10/10/audio_e5a9bdb16f.mp3'];
 
@@ -30,7 +72,6 @@ let audioSources = defaultSources;
 
 const completeSoundFx = 'https://cdn.uppbeat.io/audio-files/d927511931994ce45cf5b95b34e23536/b8acdddc6e37f6b47b0057dbaf3b53af/9c3ce15f497635d0c185b92d34ce902c/STREAMING-level-complete-winner-piano-om-fx-1-00-06.mp3';
 
-// const sunSoundFx = 'https://cdn.uppbeat.io/audio-files/44fbdf1792559839ac2aaf16cfa6b689/0b1eaccdf444f42aae30a96da4e5250c/7526d6c2f348547b4dbb742a0f1fc776/STREAMING-cuckoo-raven-bird-call-ambience-ivo-vicic-1-01-41.mp3';
 const sunSoundFx = 'https://cdn.uppbeat.io/audio-files/44fbdf1792559839ac2aaf16cfa6b689/d7b619f43e184454b1c0233423ee63dd/818e576c379605ded69f468f47d02b9c/STREAMING-mountain-forest-wind-on-early-spring-day-ivo-vicic-1-01-22.mp3';
 const rainSoundFx = 'https://cdn.uppbeat.io/audio-files/8f7bad86600558899edb9677072692ee/c5a6544ca4d77d8cda881bae989f35de/c9b7d8fbdcf58a6e5a9bb4ee160b9cbb/STREAMING-rain-outside-window-betacut-medium-1-01-00.mp3';
 const snowSoundFx = 'https://cdn.pixabay.com/audio/2023/08/31/audio_09d9b7815a.mp3';
@@ -73,17 +114,9 @@ function showReminder() {
     }).catch(error => {
         console.error('Error playing completion sound:', error);
     });
-    // Disable interaction with other elements
+    // Disable interaction with other elements while popup is open
     document.body.style.pointerEvents = 'none';
     document.querySelector('#reminderPopup').style.pointerEvents = 'auto';
-
-    // Add event listener to re-enable interactions when popup is closed
-    document.querySelector('#reminderPopup').querySelectorAll('button').forEach(button => {
-        button.addEventListener('click', function() {
-            document.body.style.pointerEvents = 'auto';
-            document.querySelector('#reminderPopup').style.display = 'none';
-        }, { once: true });
-    });
 }
 
 // Accomplishment Functions
@@ -100,30 +133,27 @@ function loadAccomplishments() {
     })
     .then((response) => response.json())
     .then((data) => {
-        console.log(data);
-        data.forEach(item => {
-            accomp.push({ text: item.text, time: item.time });
-        })
+        accomp = data.map(item => ({ text: item.text, time: item.time }));
         updateAccomplishmentsList();
     })
     .catch((error) => console.error('Error loading JSON file', error));
 }
+
 function closeReminderPopup() {
     document.querySelector('#reminderPopup').style.display = 'none';
     document.body.style.pointerEvents = 'auto';
+    toggleTheme();
 }
 
 function submitAccomplishment() {
     saveAccomplishmentFromInput();
-    document.querySelector('#reminderPopup').style.display = 'none';
+    closeReminderPopup();
     resetTimer();
-    toggleTheme();
 }
 
 function submitAccomplishmentAndBreak() {
     saveAccomplishmentFromInput();
-    document.querySelector('#reminderPopup').style.display = 'none';
-    document.body.style.pointerEvents = 'auto';
+    closeReminderPopup();
     
     isBreakMode = true;
     document.body.classList.add('break-mode');
@@ -133,7 +163,9 @@ function submitAccomplishmentAndBreak() {
     previousAudioDropdownValue = document.querySelector('#audioSourceDropdown').value;
     
     timerSeconds = 300; // 5 minutes
+    targetEndTime = null;
     document.querySelector('#timer').textContent = '00:05:00';
+    document.title = '(00:05:00) Break - Focus Desk';
     
     // Switch to dedicated break music
     audioSources = breakMusicSources;
@@ -143,7 +175,6 @@ function submitAccomplishmentAndBreak() {
     isPaused = true;
     syncPlayPauseUI();
     
-    toggleTheme(); // Revert dark theme from showReminder
     console.log("Break started (paused)...");
 }
 
@@ -190,10 +221,16 @@ function updateAccomplishmentsList() {
     list.innerHTML = '';
     accomp.forEach((item, index) => {
         const li = document.createElement('li');
-        li.innerHTML = `<div><span>${item.time}</span> ${item.text}</div>`;
+        const contentDiv = document.createElement('div');
+        const timeSpan = document.createElement('span');
+        timeSpan.textContent = item.time;
+        contentDiv.appendChild(timeSpan);
+        contentDiv.appendChild(document.createTextNode(` ${item.text}`));
+        li.appendChild(contentDiv);
         
         const deleteButton = document.createElement('button');
-        deleteButton.id = 'accompDelete';
+        deleteButton.className = 'accomp-delete';
+        deleteButton.setAttribute('aria-label', 'Delete accomplishment');
         deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
         deleteButton.onclick = () => deleteAccomplishment(index);
         
@@ -233,10 +270,7 @@ function clearAccomplishments() {
                 'Content-Type': 'application/json',
             },
         })
-        .then(response => {
-            console.log({response});
-            response.json();
-        })
+        .then(response => response.json())
         .catch((error) => {
             console.error('Error:', error);
         });
@@ -251,8 +285,8 @@ function exportAccomplishments() {
     const a = document.createElement('a');
     a.href = url;
     const now = new Date();
-    var tzoffset = now.getTimezoneOffset() * 60000; //offset in milliseconds
-    var dateTime = (new Date(Date.now() - tzoffset)).toISOString();
+    const tzoffset = now.getTimezoneOffset() * 60000; // offset in milliseconds
+    const dateTime = (new Date(Date.now() - tzoffset)).toISOString();
     a.download = `accomplishments-${dateTime}.json`;
     document.body.appendChild(a);
     a.click();
@@ -264,7 +298,11 @@ function exportAccomplishments() {
 // Timer Functions
 function updateTimer() {
     if (!isPaused) {
-        timerSeconds--;
+        if (targetEndTime) {
+            timerSeconds = Math.max(0, Math.round((targetEndTime - Date.now()) / 1000));
+        } else {
+            timerSeconds--;
+        }
         if (timerSeconds <= 0) {
             if (isBreakMode) {
                 // Break is over
@@ -310,11 +348,13 @@ function updateTimer() {
         const seconds = timerSeconds % 60;
         const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         document.querySelector('#timer').textContent = timeString;
+        document.title = `(${timeString}) ${isBreakMode ? 'Break' : 'Focus'} - Focus Desk`;
     }
 }
 
 function resetTimer() {
-    clearInterval(timerInterval);
+    stopTimerLoop();
+    targetEndTime = null;
     
     if (isBreakMode) {
         audioSources = previousAudioSources.length > 0 ? previousAudioSources : defaultSources;
@@ -324,7 +364,9 @@ function resetTimer() {
     isBreakMode = false;
     document.body.classList.remove('break-mode');
     timerSeconds = 1500; // Reset to 25 minutes
+    localStorage.removeItem('timerSeconds');
     document.querySelector('#timer').textContent = '00:25:00';
+    document.title = 'Focus Desk - Zen Focus';
     document.querySelector('#custom-hours').value = 0;
     document.querySelector('#custom-minutes').value = 25;
     document.querySelector('#custom-seconds').value = 0;
@@ -340,8 +382,7 @@ function resetTimer() {
     }
     document.querySelector('#pauseResume').textContent = 'Play';
     document.querySelector('#playPauseIcon').className = 'fas fa-play';
-    timerInterval = setInterval(updateTimer, 1000);
-    // document.body.classList.toggle('dark-theme');
+    startTimerLoop();
 }
 
 function customizeTimer() {
@@ -352,12 +393,14 @@ function customizeTimer() {
     if (hours >= 0 && minutes >= 0 && seconds >= 0) {
         timerSeconds = hours * 3600 + minutes * 60 + seconds;
         if (timerSeconds > 0) {
-            clearInterval(timerInterval);
-            timerInterval = setInterval(updateTimer, 1000);
+            stopTimerLoop();
+            targetEndTime = null;
+            startTimerLoop();
             
             document.querySelector('#pauseResume').textContent = 'Play';
             document.querySelector('#playPauseIcon').className = 'fas fa-play';
             document.querySelector('#timer').textContent = `${formatTime(hours,minutes,seconds)}`;
+            document.title = 'Focus Desk - Zen Focus';
             
             isPaused = true;
             togglePixelArt(false);
@@ -382,10 +425,12 @@ function syncPlayPauseUI() {
     const mainBtn = document.querySelector('#pauseResume');
     const breakBtn = document.querySelector('#breakPauseResume');
     const dockIcon = document.querySelector('#playPauseIcon');
+    const logo = document.querySelector('.logo');
     
     if (mainBtn) mainBtn.textContent = isPaused ? 'Play' : 'Pause';
     if (breakBtn) breakBtn.textContent = isPaused ? 'Play' : 'Pause';
     if (dockIcon) dockIcon.className = isPaused ? 'fas fa-play' : 'fas fa-pause';
+    if (logo) logo.classList.toggle('playing', !isPaused);
     
     toggleVinylAnimation(!isPaused);
     togglePixelArt(!isPaused);
@@ -394,6 +439,7 @@ function syncPlayPauseUI() {
 
 function pauseResumeTimer() {
     isPaused = !isPaused;
+    targetEndTime = isPaused ? null : Date.now() + timerSeconds * 1000;
     
     syncPlayPauseUI();
 
@@ -450,16 +496,97 @@ function toggleTomatoIcon(isPlaying) {
 }
 
 // Audio Functions
+function formatAudioTime(sec) {
+    if (!Number.isFinite(sec) || sec < 0) return '0:00';
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return `${m}:${s < 10 ? '0' + s : s}`;
+}
+
+function parseTrackMetadata(src) {
+    const dropdown = document.querySelector('#audioSourceDropdown');
+    const vibeName = dropdown && dropdown.selectedOptions[0]
+        ? dropdown.selectedOptions[0].text.replace(' 🟢', '')
+        : 'Lo-Fi';
+    const trackIdx = audioSources.indexOf(src);
+    const trackNum = trackIdx >= 0 ? trackIdx + 1 : 1;
+
+    if (isBreakMode) {
+        return { title: 'Break Time Chill', artist: 'Rest Session • Break Mode' };
+    }
+
+    if (src && src.includes('STREAMING-')) {
+        const match = src.match(/STREAMING-(.+?)-main-version/i);
+        if (match && match[1]) {
+            const words = match[1].split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1));
+            if (words.length >= 2) {
+                const artist = words[words.length - 1];
+                const title = words.slice(0, -1).join(' ');
+                return { title, artist: `${artist} • ${vibeName}` };
+            }
+            return { title: words.join(' '), artist: `${vibeName} • Track ${trackNum}` };
+        }
+    }
+
+    return {
+        title: `${vibeName} Stream #${trackNum}`,
+        artist: `Focus Desk Radio • Track ${trackNum} of ${audioSources.length}`
+    };
+}
+
+function updateNowPlayingUI(src) {
+    const titleEl = document.getElementById('trackTitle');
+    const artistEl = document.getElementById('trackArtist');
+    if (!titleEl || !artistEl) return;
+
+    const meta = parseTrackMetadata(src);
+    titleEl.textContent = meta.title;
+    titleEl.title = meta.title;
+    artistEl.textContent = meta.artist;
+}
+
+function bindAudioProgressEvents(player) {
+    const curTimeEl = document.getElementById('trackCurrentTime');
+    const durTimeEl = document.getElementById('trackDuration');
+    const fillEl = document.getElementById('trackProgressFill');
+
+    if (curTimeEl) curTimeEl.textContent = '0:00';
+    if (durTimeEl) durTimeEl.textContent = '0:00';
+    if (fillEl) fillEl.style.width = '0%';
+
+    player.addEventListener('loadedmetadata', () => {
+        if (durTimeEl) durTimeEl.textContent = formatAudioTime(player.duration);
+    });
+
+    player.addEventListener('timeupdate', () => {
+        if (curTimeEl) curTimeEl.textContent = formatAudioTime(player.currentTime);
+        if (durTimeEl && player.duration) durTimeEl.textContent = formatAudioTime(player.duration);
+        if (fillEl && player.duration > 0) {
+            fillEl.style.width = `${Math.min(100, (player.currentTime / player.duration) * 100)}%`;
+        }
+    });
+}
+
+function seekAudioTrack(event) {
+    if (!window.audioPlayer || !window.audioPlayer.duration) return;
+    const bar = event.currentTarget;
+    const rect = bar.getBoundingClientRect();
+    const ratio = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
+    window.audioPlayer.currentTime = ratio * window.audioPlayer.duration;
+}
+
 function playRandomAudio() {
-    const randomSource = audioSources[Math.floor(Math.random() * new Date().getTime() % audioSources.length)];
+    const randomSource = audioSources[Math.floor(Math.random() * audioSources.length)];
 
     if (window.audioPlayer) {
         window.audioPlayer.pause();
     }
 
     window.audioPlayer = new Audio(randomSource);
+    updateNowPlayingUI(randomSource);
+    bindAudioProgressEvents(window.audioPlayer);
 
-    window.audioPlayer.addEventListener('error', function(e) {
+    window.audioPlayer.addEventListener('error', function() {
         console.log(`Error loading audio ${randomSource}, play the next audio file`);
         nextTrack();
     });
@@ -470,7 +597,9 @@ function playRandomAudio() {
 
     window.audioPlayer.loop = isLoop;
     window.audioPlayer.volume = masterVolume;
+    window.audioPlayer.muted = isMute;
 }
+
 function previousTrack() {
     if (isSpotifyMode && spotifyPlayer) {
         spotifyPlayer.previousTrack();
@@ -480,6 +609,7 @@ function previousTrack() {
         const currentIndex = audioSources.indexOf(window.audioPlayer.src);
         const newIndex = (currentIndex - 1 + audioSources.length) % audioSources.length;
         window.audioPlayer.src = audioSources[newIndex];
+        updateNowPlayingUI(audioSources[newIndex]);
         
         if (!isPaused) {
             window.audioPlayer.play().catch(error => {
@@ -499,6 +629,7 @@ function nextTrack() {
         const currentIndex = audioSources.indexOf(window.audioPlayer.src);
         const newIndex = (currentIndex + 1) % audioSources.length;
         window.audioPlayer.src = audioSources[newIndex];
+        updateNowPlayingUI(audioSources[newIndex]);
         
         if (!isPaused) {
             window.audioPlayer.play().catch(error => {
@@ -641,7 +772,7 @@ function toggleMute() {
         window.audioPlayer.muted = isMute;
     }
     
-    ['sun', 'rain', 'snow', 'typing', 'cafe', 'office', 'thunder', 'fire', 'wave'].forEach(fx => {
+    AMBIENT_FX_KEYS.forEach(fx => {
         if (window[`${fx}Audio`]) {
             window[`${fx}Audio`].muted = isMute;
         }
@@ -653,6 +784,45 @@ function toggleMute() {
     } else {
         muteToggleButton.classList.remove('dark-theme');
     }
+}
+
+let activeWeatherStack = [];
+let activeEnvStack = [];
+
+function syncTomatoAppearance() {
+    const tomatoIcon = document.querySelector('#tomato-icon');
+    if (!tomatoIcon) return;
+
+    const currentWeather = activeWeatherStack.length > 0 ? activeWeatherStack[activeWeatherStack.length - 1] : '';
+    const currentItem = activeEnvStack.length > 0 ? activeEnvStack[activeEnvStack.length - 1] : '';
+
+    if (currentWeather) {
+        tomatoIcon.setAttribute('data-weather', currentWeather);
+    } else {
+        tomatoIcon.removeAttribute('data-weather');
+    }
+
+    if (currentItem) {
+        tomatoIcon.setAttribute('data-item', currentItem);
+    } else {
+        tomatoIcon.removeAttribute('data-item');
+    }
+}
+
+function setWeatherState(weatherKey, isActive) {
+    activeWeatherStack = activeWeatherStack.filter(w => w !== weatherKey);
+    if (isActive) {
+        activeWeatherStack.push(weatherKey);
+    }
+    syncTomatoAppearance();
+}
+
+function setEnvItemState(itemKey, isActive) {
+    activeEnvStack = activeEnvStack.filter(i => i !== itemKey);
+    if (isActive) {
+        activeEnvStack.push(itemKey);
+    }
+    syncTomatoAppearance();
 }
 
 function toggleSun() {
@@ -676,6 +846,7 @@ function toggleSun() {
         skyBackground.classList.remove('active');
         sunToggle.classList.remove('dark-theme');
         window.sunAudio?.pause();
+        setWeatherState('sun', false);
         
         // Remove existing glare
         sunGlare.innerHTML = '';
@@ -692,51 +863,350 @@ function toggleSun() {
         skyBackground.classList.add('active');
         sunToggle.classList.add('dark-theme');
         window.sunAudio.play();
+        setWeatherState('sun', true);
     }
 }
 
 function createRain() {
     const rainContainer = document.querySelector('.rain');
+    if (!rainContainer || rainContainer.style.display === 'none') return;
+
     const drop = document.createElement('div');
     drop.classList.add('raindrop');
 
-    const size = Math.random() * 2 + 1;
+    const size = Math.random() * 1.5 + 1;
     const posX = Math.floor(Math.random() * window.innerWidth);
-    const delay = Math.random() * -20;
-    const duration = Math.random() * 1 + 0.5;
+    const duration = Math.random() * 0.6 + 0.45;
 
     drop.style.left = posX + 'px';
     drop.style.width = size + 'px';
-    drop.style.animationDelay = delay + 's';
     drop.style.animationDuration = duration + 's';
 
     rainContainer.appendChild(drop);
 
     setTimeout(() => {
-      drop.remove();
+        drop.remove();
+        if (rainContainer.style.display !== 'none') {
+            const splash = document.createElement('div');
+            splash.classList.add('rain-splash');
+            splash.style.left = posX + 'px';
+            rainContainer.appendChild(splash);
+            setTimeout(() => splash.remove(), 350);
+        }
     }, duration * 1000);
 }
 
+const SNOW_SEGMENT_COUNT = 40;
+let snowSegments = new Array(SNOW_SEGMENT_COUNT).fill(0);
+let isShovelActive = false;
+let currentSnowTool = null;
+
+const SNOW_TOOLS = {
+    spoon: {
+        radius: 0,
+        centerScoop: 7,
+        sideScoop: 3,
+        puffs: 3,
+        puffColor: '#ffffff',
+        svg: `
+          <svg viewBox="0 0 64 64" width="60" height="60" fill="none">
+            <path d="M48 12 C52 8, 56 12, 52 16 L28 40" stroke="#94a3b8" stroke-width="5" stroke-linecap="round"/>
+            <path d="M48 12 L28 40" stroke="#e2e8f0" stroke-width="2" stroke-linecap="round"/>
+            <ellipse cx="20" cy="46" rx="12" ry="8" transform="rotate(-35 20 46)" fill="#cbd5e1" stroke="#64748b" stroke-width="2.5"/>
+            <ellipse cx="19" cy="44" rx="8" ry="4.5" transform="rotate(-35 19 44)" fill="#f8fafc"/>
+          </svg>`
+    },
+    mug: {
+        radius: 1,
+        centerScoop: 15,
+        sideScoop: 9,
+        puffs: 6,
+        puffColor: '#fffbeb',
+        svg: `
+          <svg viewBox="0 0 64 64" width="60" height="60" fill="none">
+            <path d="M24 16 C22 11, 27 9, 25 4" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
+            <path d="M34 15 C32 10, 37 8, 35 3" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
+            <path d="M44 26 H50 C54 26, 56 29, 56 33 C56 37, 54 40, 50 40 H44" stroke="#d97706" stroke-width="4.5" stroke-linecap="round"/>
+            <rect x="14" y="20" width="31" height="28" rx="6" fill="#f59e0b" stroke="#78350f" stroke-width="2.5"/>
+            <ellipse cx="29.5" cy="21" rx="14" ry="4" fill="#451a03" stroke="#78350f" stroke-width="2"/>
+            <path d="M20 31 H39" stroke="#fef3c7" stroke-width="2.5" stroke-linecap="round" opacity="0.6"/>
+          </svg>`
+    },
+    trash: {
+        radius: 1,
+        centerScoop: 22,
+        sideScoop: 13,
+        puffs: 7,
+        puffColor: '#f1f5f9',
+        svg: `
+          <svg viewBox="0 0 64 64" width="60" height="60" fill="none">
+            <path d="M16 20 L20 52 C20.5 54, 22 55, 25 55 H39 C42 55, 43.5 54, 44 52 L48 20 Z" fill="#94a3b8" stroke="#334155" stroke-width="2.5" stroke-linejoin="round"/>
+            <line x1="25" y1="25" x2="26" y2="49" stroke="#475569" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="32" y1="25" x2="32" y2="49" stroke="#475569" stroke-width="2.5" stroke-linecap="round"/>
+            <line x1="39" y1="25" x2="38" y2="49" stroke="#475569" stroke-width="2.5" stroke-linecap="round"/>
+            <g transform="rotate(-18 16 18)">
+              <rect x="13" y="13" width="38" height="6" rx="3" fill="#cbd5e1" stroke="#334155" stroke-width="2.5"/>
+              <path d="M27 13 V9 C27 7.5, 37 7.5, 37 9 V13" stroke="#334155" stroke-width="2.5" stroke-linecap="round"/>
+            </g>
+          </svg>`
+    },
+    penguin: {
+        radius: 2,
+        centerScoop: 20,
+        sideScoop: 14,
+        puffs: 9,
+        puffColor: '#ffffff',
+        svg: `
+          <svg viewBox="0 0 64 64" width="62" height="62" fill="none">
+            <ellipse cx="25" cy="53" rx="6" ry="3" fill="#f97316"/>
+            <ellipse cx="39" cy="53" rx="6" ry="3" fill="#f97316"/>
+            <ellipse cx="32" cy="33" rx="16" ry="20" fill="#1e293b" stroke="#0f172a" stroke-width="2.5"/>
+            <ellipse cx="32" cy="36" rx="11" ry="14" fill="#ffffff"/>
+            <path d="M16 28 C11 33, 11 41, 16 43" fill="#1e293b" stroke="#0f172a" stroke-width="2" stroke-linecap="round"/>
+            <path d="M48 28 C53 33, 53 41, 48 43" fill="#1e293b" stroke="#0f172a" stroke-width="2" stroke-linecap="round"/>
+            <path d="M19 26 Q32 31 45 26" stroke="#ef4444" stroke-width="5" stroke-linecap="round"/>
+            <path d="M38 28 L41 37" stroke="#ef4444" stroke-width="4.5" stroke-linecap="round"/>
+            <circle cx="27" cy="20" r="2.2" fill="#ffffff"/>
+            <circle cx="27" cy="20" r="1.2" fill="#0f172a"/>
+            <circle cx="37" cy="20" r="2.2" fill="#ffffff"/>
+            <circle cx="37" cy="20" r="1.2" fill="#0f172a"/>
+            <polygon points="32,21 28,25 36,25" fill="#f59e0b"/>
+          </svg>`
+    },
+    shovel: {
+        radius: 1,
+        centerScoop: 26,
+        sideScoop: 15,
+        puffs: 9,
+        puffColor: '#ffffff',
+        svg: `
+          <svg viewBox="0 0 64 64" width="64" height="64" fill="none">
+            <!-- Red D-Grip Handle -->
+            <path d="M45 6 L57 18 L53 22 L41 10 Z" fill="#dc2626" stroke="#7f1d1d" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M46 11 L52 17" stroke="#fca5a5" stroke-width="1.8" stroke-linecap="round"/>
+            <!-- Ergonomic Ash Wood Shaft -->
+            <path d="M46 16 L24 38" stroke="#78350f" stroke-width="6.5" stroke-linecap="round"/>
+            <path d="M46 16 L24 38" stroke="#d97706" stroke-width="3.8" stroke-linecap="round"/>
+            <!-- Metal Collar -->
+            <path d="M22 35 L28 41" stroke="#94a3b8" stroke-width="4.5" stroke-linecap="round"/>
+            <!-- Ribbed Wide Snow Pusher Blade -->
+            <path d="M12 29 L35 52 L23 61 C15 63, 4 52, 6 44 Z" fill="#ef4444" stroke="#991b1b" stroke-width="2.2" stroke-linejoin="round"/>
+            <!-- Blade Ribs -->
+            <path d="M16 35 L9 44 M22 41 L14 51 M28 47 L20 57" stroke="#b91c1c" stroke-width="1.8" stroke-linecap="round"/>
+            <!-- Steel Wear Strip Along Leading Edge -->
+            <path d="M6 44 C4 52, 15 63, 23 61 L20 62.5 C12 63.5, 3 54, 4.5 46 Z" fill="#cbd5e1" stroke="#475569" stroke-width="1.4"/>
+            <!-- Fresh Snow on Blade -->
+            <path d="M8 46 C10 52, 16 57, 22 58 C18 54, 14 50, 8 46 Z" fill="#ffffff" opacity="0.92"/>
+          </svg>`
+    },
+    zamboni: {
+        radius: 3,
+        centerScoop: 36,
+        sideScoop: 26,
+        puffs: 14,
+        puffColor: '#e0f2fe',
+        svg: `
+          <svg viewBox="0 0 64 64" width="64" height="64" fill="none">
+            <!-- Conditioner Rear Unit -->
+            <rect x="44" y="36" width="14" height="12" rx="2" fill="#94a3b8" stroke="#1e293b" stroke-width="2.2"/>
+            <!-- Main Zamboni Body -->
+            <path d="M8 32 C8 27, 12 25, 18 25 H38 L42 16 H50 V46 H8 Z" fill="#0284c7" stroke="#0f172a" stroke-width="2.5" stroke-linejoin="round"/>
+            <!-- White Racing Stripe -->
+            <rect x="9" y="34" width="40" height="5" fill="#ffffff"/>
+            <!-- Steering Wheel & Seat -->
+            <line x1="35" y1="25" x2="32" y2="18" stroke="#1e293b" stroke-width="2.5" stroke-linecap="round"/>
+            <ellipse cx="31" cy="17" rx="4" ry="1.8" transform="rotate(-20 31 17)" stroke="#ef4444" stroke-width="2.2"/>
+            <!-- Headlight -->
+            <circle cx="9" cy="31" r="2.5" fill="#fde047" stroke="#ca8a04" stroke-width="1.2"/>
+            <!-- Wheels -->
+            <circle cx="18" cy="47" r="6.5" fill="#1e293b" stroke="#0f172a" stroke-width="2"/>
+            <circle cx="18" cy="47" r="2.8" fill="#cbd5e1"/>
+            <circle cx="38" cy="47" r="6.5" fill="#1e293b" stroke="#0f172a" stroke-width="2"/>
+            <circle cx="38" cy="47" r="2.8" fill="#cbd5e1"/>
+          </svg>`
+    }
+};
+
+function initSnowPile(snowContainer) {
+    snowSegments = new Array(SNOW_SEGMENT_COUNT).fill(3);
+    const pile = document.createElement('div');
+    pile.className = 'snow-pile';
+    for (let i = 0; i < SNOW_SEGMENT_COUNT; i++) {
+        const seg = document.createElement('div');
+        seg.className = 'snow-segment';
+        seg.style.left = `${(i / SNOW_SEGMENT_COUNT) * 100}%`;
+        seg.style.height = `${snowSegments[i]}px`;
+        pile.appendChild(seg);
+    }
+    snowContainer.innerHTML = '';
+    snowContainer.appendChild(pile);
+}
+
+function updateSnowSegmentDOM(index) {
+    const snowContainer = document.querySelector('.snow');
+    if (!snowContainer) return;
+    const segments = snowContainer.querySelectorAll('.snow-segment');
+    if (segments[index]) {
+        segments[index].style.height = `${Math.max(0, snowSegments[index])}px`;
+    }
+}
+
+function addSnowAtPosition(posX) {
+    const idx = Math.min(
+        SNOW_SEGMENT_COUNT - 1,
+        Math.max(0, Math.floor((posX / window.innerWidth) * SNOW_SEGMENT_COUNT))
+    );
+    snowSegments[idx] = Math.min(snowSegments[idx] + 0.9, 65);
+    updateSnowSegmentDOM(idx);
+
+    if (idx > 0) {
+        snowSegments[idx - 1] = Math.min(snowSegments[idx - 1] + 0.45, 65);
+        updateSnowSegmentDOM(idx - 1);
+    }
+    if (idx < SNOW_SEGMENT_COUNT - 1) {
+        snowSegments[idx + 1] = Math.min(snowSegments[idx + 1] + 0.45, 65);
+        updateSnowSegmentDOM(idx + 1);
+    }
+}
+
+function spawnSnowPuffs(x, count = 6, color = '#ffffff') {
+    const snowContainer = document.querySelector('.snow');
+    if (!snowContainer || snowContainer.style.display === 'none') return;
+
+    for (let i = 0; i < count; i++) {
+        const puff = document.createElement('div');
+        puff.className = 'snow-puff';
+        const size = Math.random() * 6 + 4;
+        const dx = (Math.random() - 0.5) * 110;
+        const dy = -(Math.random() * 60 + 25);
+        puff.style.width = `${size}px`;
+        puff.style.height = `${size}px`;
+        puff.style.background = color;
+        puff.style.left = `${x + (Math.random() - 0.5) * 26}px`;
+        puff.style.setProperty('--puff-dx', `${dx}px`);
+        puff.style.setProperty('--puff-dy', `${dy}px`);
+        snowContainer.appendChild(puff);
+        setTimeout(() => puff.remove(), 550);
+    }
+}
+
+function shovelSnowAt(clientX, clientY) {
+    if (!isShovelActive || !currentSnowTool) return;
+    const toolConfig = SNOW_TOOLS[currentSnowTool] || SNOW_TOOLS.spoon;
+
+    const shovelCursor = document.getElementById('snowShovelCursor');
+    if (shovelCursor) {
+        shovelCursor.classList.add('scooping');
+        clearTimeout(window.shovelScoopTimeout);
+        window.shovelScoopTimeout = setTimeout(() => {
+            shovelCursor.classList.remove('scooping');
+        }, 200);
+    }
+
+    // Check if click is near the bottom floor of the viewport
+    if (clientY < window.innerHeight - 105) return;
+
+    const centerIdx = Math.min(
+        SNOW_SEGMENT_COUNT - 1,
+        Math.max(0, Math.floor((clientX / window.innerWidth) * SNOW_SEGMENT_COUNT))
+    );
+
+    let clearedAny = false;
+    const radius = toolConfig.radius;
+    for (let offset = -radius; offset <= radius; offset++) {
+        const idx = centerIdx + offset;
+        if (idx >= 0 && idx < SNOW_SEGMENT_COUNT && snowSegments[idx] > 0.5) {
+            const scoopAmount = offset === 0 ? toolConfig.centerScoop : toolConfig.sideScoop;
+            snowSegments[idx] = Math.max(0, snowSegments[idx] - scoopAmount);
+            updateSnowSegmentDOM(idx);
+            clearedAny = true;
+        }
+    }
+
+    if (clearedAny) {
+        spawnSnowPuffs(clientX, toolConfig.puffs, toolConfig.puffColor);
+    }
+}
+
+function selectSnowTool(toolKey) {
+    if (isShovelActive && currentSnowTool === toolKey) {
+        toggleShovelTool(false);
+        return;
+    }
+    currentSnowTool = toolKey;
+    isShovelActive = true;
+
+    const cursor = document.getElementById('snowShovelCursor');
+    if (cursor && SNOW_TOOLS[toolKey]) {
+        cursor.innerHTML = SNOW_TOOLS[toolKey].svg;
+        cursor.setAttribute('data-tool', toolKey);
+        cursor.classList.add('active');
+    }
+
+    document.querySelectorAll('.snow-tool-option').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-snow-tool') === toolKey);
+    });
+    document.body.classList.add('shovel-mode-active');
+}
+
+function toggleShovelTool(forceState) {
+    const nextState = typeof forceState === 'boolean' ? forceState : !isShovelActive;
+    if (!nextState) {
+        isShovelActive = false;
+        currentSnowTool = null;
+        const cursor = document.getElementById('snowShovelCursor');
+        if (cursor) cursor.classList.remove('active');
+        document.querySelectorAll('.snow-tool-option').forEach(btn => btn.classList.remove('active'));
+        document.body.classList.remove('shovel-mode-active');
+    } else {
+        selectSnowTool(currentSnowTool || 'penguin');
+    }
+}
+
+window.addEventListener('mousemove', (e) => {
+    if (!isShovelActive) return;
+    const cursor = document.getElementById('snowShovelCursor');
+    if (cursor) {
+        cursor.style.left = `${e.clientX}px`;
+        cursor.style.top = `${e.clientY}px`;
+    }
+});
+
+window.addEventListener('mousedown', (e) => {
+    if (!isShovelActive) return;
+    if (e.target && e.target.closest('#shovelToolBtn')) return;
+    shovelSnowAt(e.clientX, e.clientY);
+});
+
+window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isShovelActive) {
+        toggleShovelTool(false);
+    }
+});
+
 function createSnow() {
     const snowContainer = document.querySelector('.snow');
+    if (!snowContainer || snowContainer.style.display === 'none') return;
+
     const flake = document.createElement('div');
     flake.classList.add('snowflake');
 
     const size = Math.random() * 4 + 2; // Slightly larger than raindrops
     const posX = Math.floor(Math.random() * window.innerWidth);
-    const delay = Math.random() * -20;
-    const duration = Math.random() * 5 + 3; // Slower fall than rain
+    const duration = Math.random() * 4 + 3; // Slower fall than rain
 
     flake.style.left = posX + 'px';
     flake.style.width = size + 'px';
     flake.style.height = size + 'px';
-    flake.style.animationDelay = delay + 's';
     flake.style.animationDuration = duration + 's';
 
     snowContainer.appendChild(flake);
 
     setTimeout(() => {
         flake.remove();
+        if (snowContainer.style.display !== 'none') {
+            addSnowAtPosition(posX);
+        }
     }, duration * 1000);
 }
 
@@ -755,6 +1225,7 @@ function toggleRain() {
         rainContainer.style.display = 'none';
         rainToggle.classList.remove('dark-theme');
         window.rainAudio?.pause();
+        setWeatherState('rain', false);
         // Stop rain animation
         clearInterval(window.rainInterval);
         // Remove existing raindrops
@@ -764,6 +1235,7 @@ function toggleRain() {
         rainContainer.style.display = 'block';
         rainToggle.classList.add('dark-theme');
         window.rainAudio.play();
+        setWeatherState('rain', true);
 
         // Start rain animation
         window.rainInterval = setInterval(createRain, 20);
@@ -773,6 +1245,7 @@ function toggleRain() {
 function toggleSnow() {
     const snowContainer = document.querySelector('.snow');
     const snowToggle = document.querySelector('#snowToggle');
+    const shovelBtn = document.getElementById('shovelToolBtn');
     if (!window.snowAudio) {
         window.snowAudio = new Audio(snowSoundFx);
         window.snowAudio.volume = parseFloat(document.getElementById('snowVolume').value) * masterVolume;
@@ -784,167 +1257,85 @@ function toggleSnow() {
         snowContainer.style.display = 'none';
         snowToggle.classList.remove('dark-theme');
         window.snowAudio?.pause();
-        // Stop rain animation
+        setWeatherState('snow', false);
+        // Stop snow animation & put down shovel
         clearInterval(window.snowInterval);
-        // Remove existing raindrops
+        toggleShovelTool(false);
+        if (shovelBtn) shovelBtn.classList.remove('visible');
         snowContainer.innerHTML = '';
     } else {
         console.info('☃️☃️');
         snowContainer.style.display = 'block';
         snowToggle.classList.add('dark-theme');
         window.snowAudio.play();
+        setWeatherState('snow', true);
 
-        // Start rain animation
-        window.snowInterval = setInterval(createSnow, 20);
+        // Create segmented snow accumulation layer & show shovel button
+        initSnowPile(snowContainer);
+        if (shovelBtn) shovelBtn.classList.add('visible');
+
+        // Start snow animation
+        window.snowInterval = setInterval(createSnow, 30);
     }
 }
 
-function toggleThunder() {
-    const thunderToggle = document.querySelector('#thunderToggle');
+function toggleAmbientSound(key, soundUrl) {
+    const toggleBtn = document.querySelector(`#${key}Toggle`);
+    const audioKey = `${key}Audio`;
 
-    if (!window.thunderAudio) {
-        window.thunderAudio = new Audio(thunderSoundFx);
-        window.thunderAudio.volume = parseFloat(document.getElementById('thunderVolume').value) * masterVolume;
-        window.thunderAudio.loop = true;
+    if (!window[audioKey]) {
+        window[audioKey] = new Audio(soundUrl);
+        window[audioKey].volume = parseFloat(document.getElementById(`${key}Volume`).value) * masterVolume;
+        window[audioKey].loop = true;
+        window[audioKey].muted = isMute;
     }
 
-    if (thunderToggle.classList.contains('dark-theme')) {
-        console.info('❌⚡');
-        thunderToggle.classList.remove('dark-theme');
-        window.thunderAudio.pause();
+    if (toggleBtn.classList.contains('dark-theme')) {
+        toggleBtn.classList.remove('dark-theme');
+        window[audioKey].pause();
+        setEnvItemState(key, false);
     } else {
-        console.info('⚡⚡');
-        thunderToggle.classList.add('dark-theme');
-        window.thunderAudio.play();
+        toggleBtn.classList.add('dark-theme');
+        window[audioKey].play();
+        setEnvItemState(key, true);
     }
 }
 
-function toggleFire() {
-    const fireToggle = document.querySelector('#fireToggle');
-
-    if (!window.fireAudio) {
-        window.fireAudio = new Audio(burningWoodSoundFx);
-        window.fireAudio.volume = parseFloat(document.getElementById('fireVolume').value) * masterVolume;
-        window.fireAudio.loop = true;
-    }
-
-    if (fireToggle.classList.contains('dark-theme')) {
-        console.info('❌🔥');
-        fireToggle.classList.remove('dark-theme');
-        window.fireAudio.pause();
-    } else {
-        console.info('🔥🔥');
-        fireToggle.classList.add('dark-theme');
-        window.fireAudio.play();
-    }
-}
+function toggleThunder() { toggleAmbientSound('thunder', thunderSoundFx); }
+function toggleFire() { toggleAmbientSound('fire', burningWoodSoundFx); }
+function toggleWave() { toggleAmbientSound('wave', wavesSoundFx); }
+function toggleTyping() { toggleAmbientSound('typing', typingSoundFx); }
+function toggleCafe() { toggleAmbientSound('cafe', cafeSoundFx); }
+function toggleOffice() { toggleAmbientSound('office', officeSoundFx); }
 
 function toggleMoon() {
     const moonToggle = document.querySelector('#moonToggle');
-
-    if (moonToggle.classList.contains('dark-theme')) {
-        console.info('❌🌚');
-        moonToggle.classList.remove('dark-theme');
-        toggleTheme();
-    } else {
-        console.info('🌚🌚');
-        moonToggle.classList.add('dark-theme');
-        toggleTheme();
-    }
+    moonToggle.classList.toggle('dark-theme');
+    toggleTheme();
 }
 
-function toggleWave() {
-    const waveToggle = document.querySelector('#waveToggle');
-
-    if (!window.waveAudio) {
-        window.waveAudio = new Audio(wavesSoundFx);
-        window.waveAudio.volume = parseFloat(document.getElementById('waveVolume').value) * masterVolume;
-        window.waveAudio.loop = true;
-    }
-
-    if (waveToggle.classList.contains('dark-theme')) {
-        console.info('❌🌊');
-        waveToggle.classList.remove('dark-theme');
-        window.waveAudio.pause();
-    } else {
-        console.info('🌊🌊');
-        waveToggle.classList.add('dark-theme');
-        window.waveAudio.play();
-    } 
+function setAppTheme(themeName) {
+    document.body.setAttribute('data-theme', themeName);
+    document.querySelectorAll('.theme-swatch').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-theme-option') === themeName);
+    });
+    localStorage.setItem('focusDeskTheme', themeName);
 }
-
-
-function toggleTyping() {
-    const typingToggle = document.querySelector('#typingToggle');
-
-    if (!window.typingAudio) {
-        window.typingAudio = new Audio(typingSoundFx);
-        window.typingAudio.volume = parseFloat(document.getElementById('typingVolume').value) * masterVolume;
-        window.typingAudio.loop = true;
-    }
-
-    if (typingToggle.classList.contains('dark-theme')) {
-        console.info('❌⌨️');
-        typingToggle.classList.remove('dark-theme');
-        window.typingAudio.pause();
-    } else {
-        console.info('⌨️⌨️');
-        typingToggle.classList.add('dark-theme');
-        window.typingAudio.play();
-    }
-}
-
-function toggleCafe() {
-    const cafeToggle = document.querySelector('#cafeToggle');
-
-    if (!window.cafeAudio) {
-        window.cafeAudio = new Audio(cafeSoundFx);
-        window.cafeAudio.volume = parseFloat(document.getElementById('cafeVolume').value) * masterVolume;
-        window.cafeAudio.loop = true;
-    }
-
-    if (cafeToggle.classList.contains('dark-theme')) {
-        console.info('❌☕');
-        cafeToggle.classList.remove('dark-theme');
-        window.cafeAudio.pause();
-    } else {
-        console.info('☕️☕️');
-        cafeToggle.classList.add('dark-theme');
-        window.cafeAudio.play();
-    }
-}
-
-function toggleOffice() {
-    const officeToggle = document.querySelector('#officeToggle');
-
-    if (!window.officeAudio) {
-        window.officeAudio = new Audio(officeSoundFx);
-        window.officeAudio.volume = parseFloat(document.getElementById('officeVolume').value) * masterVolume;
-        window.officeAudio.loop = true;
-    }
-
-    if (officeToggle.classList.contains('dark-theme')) {
-        console.info('❌💼');
-        officeToggle.classList.remove('dark-theme');
-        window.officeAudio.pause();
-    } else {
-        console.info('💼💼');
-        officeToggle.classList.add('dark-theme');
-        window.officeAudio.play();
-    }
-}
-
-
 
 // Start the timer immediately
 window.onload = async function() {
+    const savedTheme = localStorage.getItem('focusDeskTheme');
+    if (savedTheme) {
+        setAppTheme(savedTheme);
+    }
+
     // Request Notification permission
     if ("Notification" in window && Notification.permission !== "denied") {
         Notification.requestPermission();
     }
 
     // Setup Volume Listeners
-    ['sun', 'rain', 'snow', 'typing', 'cafe', 'office', 'thunder', 'fire', 'wave'].forEach(fx => {
+    AMBIENT_FX_KEYS.forEach(fx => {
         const slider = document.getElementById(`${fx}Volume`);
         if (slider) {
             slider.addEventListener('input', (e) => {
@@ -969,7 +1360,7 @@ window.onload = async function() {
             }
             
             // Update all active ambient sounds
-            ['sun', 'rain', 'snow', 'typing', 'cafe', 'office', 'thunder', 'fire', 'wave'].forEach(fx => {
+            AMBIENT_FX_KEYS.forEach(fx => {
                 const s = document.getElementById(`${fx}Volume`);
                 if (s && window[`${fx}Audio`]) {
                     window[`${fx}Audio`].volume = parseFloat(s.value) * masterVolume;
@@ -988,16 +1379,7 @@ window.onload = async function() {
         playRandomAudio();
     }
     
-    const savedTimer = localStorage.getItem('timerSeconds');
-    if (savedTimer) {
-        const t = parseInt(savedTimer);
-        document.querySelector('#custom-hours').value = Math.floor(t / 3600);
-        document.querySelector('#custom-minutes').value = Math.floor((t % 3600) / 60);
-        document.querySelector('#custom-seconds').value = t % 60;
-        customizeTimer();
-    } else {
-        resetTimer();
-    }
+    resetTimer();
 
     syncPlayPauseUI();
 };
@@ -1044,11 +1426,23 @@ function initSpotifyPlayer() {
         
         const { current_track } = state.track_window;
         const vinylLabel = document.querySelector('#vinyl-label-text');
-        if (vinylLabel && current_track && isSpotifyMode) {
-            vinylLabel.textContent = current_track.name;
+        if (current_track && isSpotifyMode) {
+            if (vinylLabel) vinylLabel.textContent = current_track.name;
+            const titleEl = document.getElementById('trackTitle');
+            const artistEl = document.getElementById('trackArtist');
+            if (titleEl) {
+                titleEl.textContent = current_track.name;
+                titleEl.title = current_track.name;
+            }
+            if (artistEl && current_track.artists) {
+                artistEl.textContent = `${current_track.artists.map(a => a.name).join(', ')} • Spotify`;
+            }
         }
         
-        isPaused = state.paused;
+        if (isPaused !== state.paused) {
+            isPaused = state.paused;
+            targetEndTime = isPaused ? null : Date.now() + timerSeconds * 1000;
+        }
         syncPlayPauseUI();
     });
 

@@ -1,18 +1,26 @@
-import requests
 import re
+import sys
+import requests
 
-url = ""  # URL of the page to scrape
-response = requests.get(url)
 
-# Find all URLs that start with "https://cdn.uppbeat.io/audio-files" and end with ".mp3"
-mp3_urls = re.findall(r'https://cdn\.uppbeat\.io/audio-*.*?\.mp3', response.text)
+def main():
+    url = sys.argv[1] if len(sys.argv) > 1 else ""
+    if not url:
+        print("Usage: python tools/getMp3.py <url>", file=sys.stderr)
+        sys.exit(1)
 
-# Create a list to store the MP3 URLs
-mp3_list = mp3_urls
+    response = requests.get(url, timeout=15)
+    response.raise_for_status()
 
-# Print the list of MP3 URLs (optional, for verification)
-print("Found {} MP3 URLs:".format(len(mp3_list)))
-mp3_array = ["'" + url + "'" for url in mp3_list]
-print("[")
-print(",\n".join(mp3_array))
-print("]")
+    # Find all URLs that start with "https://cdn.uppbeat.io/audio-" and end with ".mp3"
+    mp3_urls = re.findall(r"https://cdn\.uppbeat\.io/audio-.*?\.mp3", response.text)
+
+    print(f"Found {len(mp3_urls)} MP3 URLs:")
+    mp3_array = [f"'{u}'" for u in mp3_urls]
+    print("[")
+    print(",\n".join(mp3_array))
+    print("]")
+
+
+if __name__ == "__main__":
+    main()

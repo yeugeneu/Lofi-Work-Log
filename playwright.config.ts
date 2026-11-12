@@ -54,5 +54,8 @@ export default defineConfig({
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     ignoreHTTPSErrors: true,
+    env: {
+      DB_PATH: path.join(__dirname, 'data', 'accomplishments.test.json'),
+    },
   },
 });

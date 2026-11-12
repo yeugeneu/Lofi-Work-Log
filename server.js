@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const crypto = require('crypto');
 const http = require('http');
 const https = require('https');
 const fs = require('fs');
@@ -28,9 +29,12 @@ const redirect_uri = process.env.REDIRECT_URI;
 
 let access_token = null;
 let refresh_token = null;
+let oauth_state = null;
 
-// Setup lowdb
-const adapter = new FileSync(path.join(__dirname, 'data', 'accomplishments.json'));
+// Setup lowdb (supports DB_PATH override for isolated testing)
+const dbPath = process.env.DB_PATH || path.join(__dirname, 'data', 'accomplishments.json');
+fs.mkdirSync(path.dirname(dbPath), { recursive: true });
+const adapter = new FileSync(dbPath);
 const db = low(adapter);
 
 // Set some defaults (required if your JSON file is empty)
@@ -105,7 +109,12 @@ app.post('/delete-accomplishment', (req, res) => {
     const indexToDelete = req.body.index;
     const accomplishments = db.get('accomplishments').value();
 
-    if (indexToDelete < 0 || indexToDelete >= accomplishments.length) {
+    if (
+      typeof indexToDelete !== 'number' ||
+      !Number.isInteger(indexToDelete) ||
+      indexToDelete < 0 ||
+      indexToDelete >= accomplishments.length
+    ) {
       return res.status(400).json({ error: 'Invalid index' });
     }
 
@@ -123,18 +132,29 @@ app.post('/delete-accomplishment', (req, res) => {
 // --- Spotify Auth Endpoints ---
 
 app.get('/login', (req, res) => {
+  if (!client_id || !redirect_uri) {
+    return res.status(500).send('Spotify credentials are not configured in .env');
+  }
+  oauth_state = crypto.randomBytes(16).toString('hex');
   const scope = 'streaming user-read-email user-read-private user-modify-playback-state';
   res.redirect('https://accounts.spotify.com/authorize?' +
     querystring.stringify({
       response_type: 'code',
       client_id: client_id,
       scope: scope,
-      redirect_uri: redirect_uri
+      redirect_uri: redirect_uri,
+      state: oauth_state
     }));
 });
 
 app.get('/callback', async (req, res) => {
   const code = req.query.code || null;
+  const state = req.query.state || null;
+
+  if (!state || state !== oauth_state) {
+    return res.status(400).send('State mismatch error');
+  }
+  oauth_state = null;
 
   try {
     const response = await axios({
@@ -147,7 +167,7 @@ app.get('/callback', async (req, res) => {
       }),
       headers: {
         'content-type': 'application/x-www-form-urlencoded',
-        'Authorization': 'Basic ' + (new Buffer.from(client_id + ':' + client_secret).toString('base64'))
+        'Authorization': 'Basic ' + Buffer.from(client_id + ':' + client_secret).toString('base64')
       }
     });
 
@@ -178,7 +198,7 @@ app.get('/auth/refresh_token', async (req, res) => {
       }),
       headers: {
         'content-type': 'application/x-www-form-urlencoded',
-        'Authorization': 'Basic ' + (new Buffer.from(client_id + ':' + client_secret).toString('base64'))
+        'Authorization': 'Basic ' + Buffer.from(client_id + ':' + client_secret).toString('base64')
       }
     });
 

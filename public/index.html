@@ -5,12 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Focus Desk - Zen Focus</title>
     <link rel="shortcut icon" href="#">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        corePlugins: {
+          preflight: false,
+        },
+        darkMode: ['class', '.dark-theme'],
+        theme: {
+          extend: {
+            colors: {
+              desk: {
+                bg: 'var(--bg-color)',
+                main: 'var(--text-main)',
+                muted: 'var(--text-muted)',
+                accent: 'var(--accent-color)',
+                hover: 'var(--accent-hover)',
+              }
+            }
+          }
+        }
+      };
+    </script>
     <link rel="stylesheet" href="style.css" >
     <script defer src="audio-data.js"></script>
     <script defer src="script.js"></script>
     <script src="https://sdk.scdn.co/spotify-player.js"></script>
   </head>
-  <body>
+  <body data-theme="zen">
     <!-- Background layers -->
     <div class="sky-background"></div>
     <div class="sun-glare"></div>
@@ -18,17 +40,299 @@
     <div class="snow"></div>
     <div id="pixel-art-bg" class="pixel-art-bg"></div>
 
-    <main class="app-wrapper glass">
-      <header class="app-header">
-        <h1 class="logo">Focus Desk</h1>
-        <button id="moonToggle" class="icon-btn moon-toggle" aria-label="Toggle Dark Theme" onclick="toggleMoon()">
-          <i class="fas fa-moon"></i>
+    <!-- Snow Cleanup Crew Dock & Follower (Active in Snow Mode) -->
+    <div id="shovelToolBtn" class="snow-crew-dock glass" role="group" aria-label="Snow Cleanup Crew">
+      <span class="snow-crew-label">Clear Snow:</span>
+      <div class="snow-crew-items">
+        <button type="button" class="snow-tool-option" data-snow-tool="spoon" onclick="selectSnowTool('spoon')" title="Silver Spoon (Tiny dainty scoops)">
+          <span class="snow-tool-emoji">🥄</span>
+          <span class="snow-tool-name">Spoon</span>
         </button>
+        <button type="button" class="snow-tool-option" data-snow-tool="mug" onclick="selectSnowTool('mug')" title="Hot Coffee Mug (Melts snow with warm coffee)">
+          <span class="snow-tool-emoji">☕</span>
+          <span class="snow-tool-name">Coffee Mug</span>
+        </button>
+        <button type="button" class="snow-tool-option" data-snow-tool="trash" onclick="selectSnowTool('trash')" title="Garbage Can (Gulps chunky piles of snow)">
+          <span class="snow-tool-emoji">🗑️</span>
+          <span class="snow-tool-name">Garbage Can</span>
+        </button>
+        <button type="button" class="snow-tool-option" data-snow-tool="penguin" onclick="selectSnowTool('penguin')" title="Sliding Penguin (Belly-slides through snowbanks)">
+          <span class="snow-tool-emoji">🐧</span>
+          <span class="snow-tool-name">Penguin</span>
+        </button>
+        <button type="button" class="snow-tool-option" data-snow-tool="shovel" onclick="selectSnowTool('shovel')" title="Snow Shovel (Classic wide-blade snow pusher)">
+          <span class="snow-tool-emoji" aria-hidden="true">
+            <svg viewBox="0 0 20 20" width="17" height="17" fill="none" style="vertical-align: -3px;">
+              <path d="M13.5 2.5 L17.5 6.5 M15.5 4.5 L8.5 11.5" stroke="#92400e" stroke-width="2.2" stroke-linecap="round"/>
+              <path d="M4.5 10.5 L10.5 16.5 L6.5 18.8 C4.8 19.3 2.5 17 3 15.3 Z" fill="#ef4444" stroke="#991b1b" stroke-width="1.4" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="snow-tool-name">Shovel</span>
+        </button>
+        <button type="button" class="snow-tool-option" data-snow-tool="zamboni" onclick="selectSnowTool('zamboni')" title="Mini Zamboni (Heavy-duty wide snow resurfacer)">
+          <span class="snow-tool-emoji">🚜</span>
+          <span class="snow-tool-name">Zamboni</span>
+        </button>
+      </div>
+    </div>
+    <div id="snowShovelCursor" class="snow-shovel-cursor" aria-hidden="true"></div>
+
+    <main class="app-wrapper glass">
+      <header class="app-header flex flex-wrap gap-3 justify-between items-center">
+        <h1 class="logo" aria-label="Focus Desk">
+          <span class="logo-emblem" aria-hidden="true">
+            <svg viewBox="0 0 44 44" width="38" height="38" fill="none">
+              <!-- Headphone Band -->
+              <path d="M8 24 C8 13.5, 36 13.5, 36 24" stroke="var(--accent-color)" stroke-width="3" stroke-linecap="round"/>
+              <!-- Ear Cups -->
+              <rect x="4.5" y="21" width="6" height="12" rx="3" fill="var(--accent-color)"/>
+              <rect x="33.5" y="21" width="6" height="12" rx="3" fill="var(--accent-color)"/>
+              <!-- Mini Vinyl Disc Center -->
+              <circle class="logo-vinyl" cx="22" cy="26" r="9.5" fill="#141414" stroke="var(--accent-color)" stroke-width="1.5"/>
+              <circle cx="22" cy="26" r="6" stroke="rgba(255,255,255,0.14)" stroke-width="0.8" stroke-dasharray="3 2"/>
+              <circle cx="22" cy="26" r="3" fill="var(--accent-color)"/>
+              <circle cx="22" cy="26" r="1" fill="#141414"/>
+            </svg>
+          </span>
+          <span class="logo-text-group">
+            <span class="logo-title-row">
+              <span class="logo-word-focus">FOCUS</span>
+              <span class="logo-word-desk">DESK</span>
+            </span>
+            <span class="logo-sub-row" aria-hidden="true">
+              <span class="logo-on-air-dot"></span>
+              <span class="logo-sub-label">LO-FI STUDIO // FM</span>
+              <span class="logo-eq">
+                <span></span><span></span><span></span><span></span>
+              </span>
+            </span>
+          </span>
+        </h1>
+        <div class="flex items-center gap-3">
+          <div id="themeSwitcher" class="theme-switcher flex items-center gap-2 px-3 py-1.5 rounded-full" role="group" aria-label="Theme Palette">
+            <button type="button" class="theme-swatch active" data-theme-option="zen" title="Zen Studio" aria-label="Zen Studio Theme" onclick="setAppTheme('zen')" style="background: #a18c8c;"></button>
+            <button type="button" class="theme-swatch" data-theme-option="matcha" title="Matcha Cafe" aria-label="Matcha Cafe Theme" onclick="setAppTheme('matcha')" style="background: #10b981;"></button>
+            <button type="button" class="theme-swatch" data-theme-option="sunset" title="Sunset Lofi" aria-label="Sunset Lofi Theme" onclick="setAppTheme('sunset')" style="background: #f97316;"></button>
+            <button type="button" class="theme-swatch" data-theme-option="sakura" title="Sakura Blossom" aria-label="Sakura Blossom Theme" onclick="setAppTheme('sakura')" style="background: #ec4899;"></button>
+            <button type="button" class="theme-swatch" data-theme-option="ocean" title="Ocean Breeze" aria-label="Ocean Breeze Theme" onclick="setAppTheme('ocean')" style="background: #0ea5e9;"></button>
+            <button type="button" class="theme-swatch" data-theme-option="cyberpunk" title="Cyberpunk Neon" aria-label="Cyberpunk Neon Theme" onclick="setAppTheme('cyberpunk')" style="background: #a855f7;"></button>
+          </div>
+          <button id="moonToggle" class="icon-btn moon-toggle" aria-label="Toggle Dark Theme" onclick="toggleMoon()">
+            <i class="fas fa-moon"></i>
+          </button>
+        </div>
       </header>
 
       <!-- Timer Centerpiece -->
       <section id="timer-focus">
-        <img id="tomato-icon" class="tomato-icon" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbHFsdXU4Znl3MTIzd2tubmhsdTV6aHI1OTVkeWJrenI4MmJmdTBvcyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3OBg5pc9KnENjuwTDV/giphy.gif" alt="Slicing Tomato" />
+        <div id="tomato-icon" class="tomato-icon" role="img" aria-label="Walking Pomodoro Tomato">
+          <svg class="pomodoro-tomato-svg" viewBox="0 0 140 130" width="118" height="110" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <!-- Realistic 3D Tomato Skin Radial Gradient -->
+              <radialGradient id="tomatoSkin" cx="38%" cy="32%" r="65%" fx="32%" fy="28%">
+                <stop offset="0%" stop-color="#ff7a6b" />
+                <stop offset="28%" stop-color="#ef2b2d" />
+                <stop offset="72%" stop-color="#b91319" />
+                <stop offset="100%" stop-color="#6e070c" />
+              </radialGradient>
+              <!-- Rib Crease Shading -->
+              <linearGradient id="tomatoRib" x1="50%" y1="0%" x2="50%" y2="100%">
+                <stop offset="0%" stop-color="#7f090e" stop-opacity="0.45" />
+                <stop offset="50%" stop-color="#5a0408" stop-opacity="0.1" />
+                <stop offset="100%" stop-color="#3b0205" stop-opacity="0.4" />
+              </linearGradient>
+              <!-- Lush Green Stem & Calyx Gradient -->
+              <linearGradient id="tomatoLeaf" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#4ade80" />
+                <stop offset="55%" stop-color="#16a34a" />
+                <stop offset="100%" stop-color="#14532d" />
+              </linearGradient>
+              <!-- Soft Floor Shadow -->
+              <radialGradient id="tomatoShadow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="rgba(0, 0, 0, 0.38)" />
+                <stop offset="100%" stop-color="rgba(0, 0, 0, 0)" />
+              </radialGradient>
+            </defs>
+
+            <!-- Dynamic Floor Shadow -->
+            <ellipse class="tomato-shadow" cx="65" cy="116" rx="28" ry="6" fill="url(#tomatoShadow)" />
+
+            <!-- Back Walking Leg -->
+            <g class="tomato-leg tomato-leg-back">
+              <path d="M71 84 C72 94, 70 102, 68 110" stroke="#7c2d12" stroke-width="5.5" stroke-linecap="round" />
+              <ellipse class="tomato-foot-back" cx="71" cy="111" rx="7.5" ry="3.8" fill="#5c1d0c" />
+              <!-- Rain Boot (Back) -->
+              <path class="tomato-rain-boot" d="M64 100 H73 V111 C73 113, 79 113, 79 110 C79 107, 75 106, 74 105 V100 Z" fill="#facc15" stroke="#ca8a04" stroke-width="1.5" />
+            </g>
+
+            <!-- Main Bouncing Tomato Body + Outfits + Held Items -->
+            <g class="tomato-body-group">
+              <!-- WAVE ITEM (Back Layer): Surfboard tucked behind arm -->
+              <g class="tomato-item tomato-item-wave">
+                <ellipse cx="42" cy="64" rx="34" ry="11" transform="rotate(-28 42 64)" fill="#38bdf8" stroke="#0369a1" stroke-width="2.2" />
+                <path d="M16 77 L68 51" stroke="#fde047" stroke-width="4" stroke-linecap="round" />
+                <path d="M19 80 L71 54" stroke="#f43f5e" stroke-width="2" stroke-linecap="round" />
+              </g>
+
+              <!-- Plump Organic Tomato Silhouette -->
+              <path d="M65 33 C39 31, 24 48, 26 69 C28 88, 45 97, 65 97 C85 97, 102 88, 104 69 C106 48, 91 31, 65 33 Z" fill="url(#tomatoSkin)" />
+
+              <!-- Natural Heirloom Tomato Rib Contours -->
+              <path d="M51 34 C38 48, 38 80, 52 95" stroke="url(#tomatoRib)" stroke-width="2" stroke-linecap="round" fill="none" />
+              <path d="M79 34 C92 48, 92 80, 78 95" stroke="url(#tomatoRib)" stroke-width="2" stroke-linecap="round" fill="none" />
+              <path d="M65 35 C63 54, 63 76, 65 96" stroke="url(#tomatoRib)" stroke-width="1.4" stroke-linecap="round" fill="none" />
+
+              <!-- Glossy 3D Specular Highlights -->
+              <ellipse cx="46" cy="50" rx="11" ry="6.5" transform="rotate(-28 46 50)" fill="white" fill-opacity="0.42" />
+              <circle cx="38" cy="60" r="3" fill="white" fill-opacity="0.3" />
+              <path d="M77 92 C88 89, 96 80, 99 68" stroke="#fca5a5" stroke-width="2" stroke-linecap="round" stroke-opacity="0.35" fill="none" />
+
+              <!-- Expressive Eyes -->
+              <g class="tomato-eyes">
+                <circle cx="72" cy="62" r="2.8" fill="#1f0808" />
+                <circle cx="73" cy="61" r="0.9" fill="#ffffff" />
+                <circle cx="84" cy="62" r="2.8" fill="#1f0808" />
+                <circle cx="85" cy="61" r="0.9" fill="#ffffff" />
+                <path d="M76 68 Q78.5 70.5 81 68" stroke="#450a0a" stroke-width="1.8" stroke-linecap="round" fill="none" />
+              </g>
+
+              <!-- Lush Green Calyx Sepals & Curved Vine Stem -->
+              <g class="tomato-stem">
+                <path d="M65 35 C55 34, 45 39, 40 44 C48 37, 56 30, 65 31 C74 30, 82 37, 90 44 C85 39, 75 34, 65 35 Z" fill="url(#tomatoLeaf)" />
+                <path d="M65 34 C58 28, 48 27, 42 30 C50 26, 58 26, 65 30 C72 26, 80 26, 88 30 C82 27, 72 28, 65 34 Z" fill="url(#tomatoLeaf)" />
+                <path d="M65 35 C63 40, 60 45, 56 48 C59 42, 61 36, 65 32 C69 36, 71 42, 74 48 C70 45, 67 40, 65 35 Z" fill="url(#tomatoLeaf)" />
+                <path d="M65 33 C65 25, 69 19, 75 16" stroke="#15803d" stroke-width="4.5" stroke-linecap="round" />
+                <path d="M65 33 C65 25, 69 19, 75 16" stroke="#4ade80" stroke-width="1.5" stroke-linecap="round" stroke-opacity="0.6" />
+              </g>
+
+              <!-- ==================== WEATHER OUTFITS ==================== -->
+              <!-- SUN OUTFIT: Straw Sun Hat & Cool Sunglasses -->
+              <g class="tomato-outfit tomato-outfit-sun">
+                <!-- Straw Boater / Sun Hat -->
+                <ellipse cx="64" cy="31" rx="34" ry="7" fill="#fde047" stroke="#ca8a04" stroke-width="2" />
+                <path d="M44 30 C44 17, 84 17, 84 30 Z" fill="#fef08a" stroke="#ca8a04" stroke-width="2" />
+                <path d="M44 28 Q64 31 84 28" stroke="#ef4444" stroke-width="3.5" fill="none" />
+                <!-- Cool Wayfarer Sunglasses -->
+                <path d="M58 58 H93" stroke="#111827" stroke-width="2.2" stroke-linecap="round" />
+                <rect x="64" y="57" width="12" height="9" rx="2.5" fill="#0f172a" stroke="#1e293b" stroke-width="1.5" />
+                <rect x="79" y="57" width="12" height="9" rx="2.5" fill="#0f172a" stroke="#1e293b" stroke-width="1.5" />
+                <line x1="66" y1="64" x2="71" y2="59" stroke="#38bdf8" stroke-width="1.5" stroke-linecap="round" />
+                <line x1="81" y1="64" x2="86" y2="59" stroke="#38bdf8" stroke-width="1.5" stroke-linecap="round" />
+              </g>
+
+              <!-- RAIN OUTFIT: Yellow Rain Hat & Umbrella -->
+              <g class="tomato-outfit tomato-outfit-rain">
+                <!-- Yellow Sou'wester Rain Hat -->
+                <path d="M35 35 Q65 26 96 36 C88 39, 42 39, 35 35 Z" fill="#facc15" stroke="#a16207" stroke-width="2" />
+                <path d="M45 34 C46 18, 84 18, 85 34 Z" fill="#fde047" stroke="#a16207" stroke-width="2" />
+                <!-- Overhead Umbrella -->
+                <line x1="96" y1="18" x2="88" y2="68" stroke="#475569" stroke-width="2.5" stroke-linecap="round" />
+                <path d="M88 68 C87 72, 82 72, 82 68" stroke="#b45309" stroke-width="2.8" stroke-linecap="round" fill="none" />
+                <path d="M66 20 C76 4, 114 6, 122 24 Q108 21 95 23 Q80 19 66 20 Z" fill="#38bdf8" stroke="#0284c7" stroke-width="2" />
+              </g>
+
+              <!-- SNOW OUTFIT: Cozy Knit Beanie & Striped Winter Scarf -->
+              <g class="tomato-outfit tomato-outfit-snow">
+                <!-- Striped Knit Scarf around Tomato -->
+                <path d="M33 75 Q65 86 96 74 C97 80, 95 85, 92 86 Q65 95 36 84 C33 82, 32 78, 33 75 Z" fill="#fef2f2" stroke="#991b1b" stroke-width="2" />
+                <path d="M42 78 L40 85 M54 81 L52 88 M66 82 L65 89 M78 80 L77 87 M88 77 L87 84" stroke="#dc2626" stroke-width="3.5" />
+                <!-- Hanging Scarf Tail -->
+                <path d="M46 82 L41 101 L52 102 L55 84 Z" fill="#ef4444" stroke="#991b1b" stroke-width="2" stroke-linejoin="round" />
+                <line x1="42" y1="96" x2="53" y2="97" stroke="#fef2f2" stroke-width="3" />
+                <!-- Cozy Knit Winter Beanie + Pom-Pom -->
+                <path d="M41 34 C42 16, 88 16, 89 34 Z" fill="#ef4444" stroke="#991b1b" stroke-width="2" />
+                <rect x="38" y="29" width="54" height="8" rx="4" fill="#fef2f2" stroke="#991b1b" stroke-width="2" />
+                <circle cx="65" cy="14" r="6.5" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
+              </g>
+
+              <!-- ==================== ENVIRONMENT HELD ITEMS ==================== -->
+              <!-- CAFE ITEM: Steaming Coffee Cup -->
+              <g class="tomato-item tomato-item-cafe">
+                <path d="M84 74 Q94 77 99 74" stroke="#7c2d12" stroke-width="4" stroke-linecap="round" />
+                <!-- Cup & Sleeve -->
+                <path d="M95 64 H113 L111 84 C110.5 86, 109 87, 107 87 H101 C99 87, 97.5 86, 97 84 L95 64 Z" fill="#fffbeb" stroke="#78350f" stroke-width="2" />
+                <rect x="95.5" y="71" width="16.5" height="8" fill="#d97706" stroke="#78350f" stroke-width="1.5" />
+                <rect x="93" y="61" width="22" height="4" rx="2" fill="#f59e0b" stroke="#78350f" stroke-width="1.5" />
+                <!-- Rising Steam Curls -->
+                <path class="tomato-steam-1" d="M101 58 C99 53, 104 51, 102 46" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.85" />
+                <path class="tomato-steam-2" d="M107 57 C105 52, 110 50, 108 45" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="0.85" />
+              </g>
+
+              <!-- TYPING ITEM: Mechanical Keyboard & Tapping Hands -->
+              <g class="tomato-item tomato-item-typing">
+                <!-- Tilted Mechanical Keyboard -->
+                <g transform="rotate(-8 86 78)">
+                  <rect x="64" y="73" width="46" height="14" rx="3" fill="#1e293b" stroke="#0f172a" stroke-width="2" />
+                  <!-- Keycaps -->
+                  <rect x="68" y="76" width="5" height="3.5" rx="0.8" fill="#e2e8f0" />
+                  <rect x="75" y="76" width="5" height="3.5" rx="0.8" fill="#38bdf8" />
+                  <rect x="82" y="76" width="5" height="3.5" rx="0.8" fill="#e2e8f0" />
+                  <rect x="89" y="76" width="5" height="3.5" rx="0.8" fill="#e2e8f0" />
+                  <rect x="96" y="76" width="5" height="3.5" rx="0.8" fill="#f43f5e" />
+                  <rect x="69" y="81" width="6" height="3.5" rx="0.8" fill="#94a3b8" />
+                  <rect x="77" y="81" width="18" height="3.5" rx="0.8" fill="#f8fafc" />
+                  <rect x="97" y="81" width="6" height="3.5" rx="0.8" fill="#94a3b8" />
+                </g>
+                <!-- Rapidly Tapping Hands -->
+                <circle class="tomato-hand-left" cx="76" cy="74" r="4.2" fill="#ef2b2d" stroke="#7f090e" stroke-width="1.5" />
+                <circle class="tomato-hand-right" cx="94" cy="73" r="4.2" fill="#ef2b2d" stroke="#7f090e" stroke-width="1.5" />
+              </g>
+
+              <!-- OFFICE ITEM: Tie & Leather Briefcase -->
+              <g class="tomato-item tomato-item-office">
+                <!-- Smart Blue Necktie -->
+                <polygon points="75,72 81,72 79,76 77,76" fill="#1d4ed8" stroke="#1e3a8a" stroke-width="1" />
+                <polygon points="77,76 79,76 82,89 78,93 74,89" fill="#2563eb" stroke="#1e3a8a" stroke-width="1.2" />
+                <!-- Arm + Leather Briefcase -->
+                <path d="M45 72 Q35 76 32 80" stroke="#7c2d12" stroke-width="4" stroke-linecap="round" />
+                <path d="M25 80 V76 C25 74, 35 74, 35 76 V80" stroke="#451a03" stroke-width="2.2" fill="none" />
+                <rect x="14" y="79" width="32" height="22" rx="3" fill="#78350f" stroke="#451a03" stroke-width="2" />
+                <path d="M14 87 H46" stroke="#451a03" stroke-width="1.8" />
+                <rect x="21" y="85" width="4" height="5" rx="1" fill="#fbbf24" />
+                <rect x="35" y="85" width="4" height="5" rx="1" fill="#fbbf24" />
+              </g>
+
+              <!-- THUNDER ITEM: Glowing Storm Lantern / Lightning Staff -->
+              <g class="tomato-item tomato-item-thunder">
+                <path d="M84 72 L106 64" stroke="#7c2d12" stroke-width="4" stroke-linecap="round" />
+                <!-- Mini Lightning Bolt Badge in Hand -->
+                <polygon class="tomato-bolt-glow" points="112,44 100,62 109,62 103,78 121,57 111,57" fill="#fde047" stroke="#ca8a04" stroke-width="1.8" stroke-linejoin="round" />
+              </g>
+
+              <!-- FIRE ITEM: Roasting Stick with Toasted Marshmallow -->
+              <g class="tomato-item tomato-item-fire">
+                <path d="M84 74 L120 52" stroke="#78350f" stroke-width="3" stroke-linecap="round" />
+                <!-- Toasted Marshmallow -->
+                <g transform="rotate(-32 118 53)">
+                  <rect x="111" y="46" width="14" height="11" rx="3.5" fill="#fef3c7" stroke="#b45309" stroke-width="1.8" />
+                  <path d="M119 46 H122 C124 46, 125 48, 125 51.5 C125 55, 124 57, 122 57 H119 Z" fill="#d97706" opacity="0.65" />
+                </g>
+                <!-- Warm Ember Glow -->
+                <circle class="tomato-fire-glow" cx="120" cy="51" r="10" fill="#fb923c" opacity="0.35" />
+              </g>
+
+              <!-- WAVE ITEM (Front Layer): Tropical Coconut Drink with Straw -->
+              <g class="tomato-item tomato-item-wave">
+                <path d="M84 74 Q94 76 98 73" stroke="#7c2d12" stroke-width="4" stroke-linecap="round" />
+                <!-- Straw & Pink Drink Umbrella -->
+                <line x1="105" y1="68" x2="112" y2="53" stroke="#f43f5e" stroke-width="2.2" stroke-linecap="round" />
+                <path d="M94 56 L105 49 L109 59 Z" fill="#ec4899" stroke="#be185d" stroke-width="1.2" />
+                <line x1="102" y1="54" x2="104" y2="68" stroke="#fde047" stroke-width="1.8" />
+                <!-- Coconut Shell -->
+                <circle cx="105" cy="73" r="10" fill="#5c2810" stroke="#3b1808" stroke-width="2" />
+                <ellipse cx="105" cy="66" rx="8" ry="3" fill="#ffffff" stroke="#3b1808" stroke-width="1.5" />
+              </g>
+            </g>
+
+            <!-- Front Walking Leg -->
+            <g class="tomato-leg tomato-leg-front">
+              <path d="M57 84 C56 94, 58 102, 60 110" stroke="#9a3412" stroke-width="5.5" stroke-linecap="round" />
+              <ellipse class="tomato-foot-front" cx="63" cy="111" rx="7.5" ry="3.8" fill="#7c2d12" />
+              <!-- Rain Boot (Front) -->
+              <path class="tomato-rain-boot" d="M55 100 H64 V111 C64 113, 70 113, 70 110 C70 107, 66 106, 65 105 V100 Z" fill="#facc15" stroke="#ca8a04" stroke-width="1.5" />
+            </g>
+          </svg>
+        </div>
         <div id="break-icon" class="break-icon"><i class="fas fa-coffee"></i></div>
         <div id="timer" class="timer-display mono">00:25:00</div>
         
@@ -151,6 +455,11 @@
             <div class="vinyl-label" id="vinyl-label-text">Lo-Fi</div>
           </div>
         </div>
+        <div class="now-playing-info">
+          <div class="now-playing-badge">NOW PLAYING</div>
+          <div id="trackTitle" class="track-title" title="Lo-Fi Chill Stream">Lo-Fi Chill Stream</div>
+          <div id="trackArtist" class="track-artist">Default Vibe • Track 1</div>
+        </div>
       </div>
       
       <div class="dashboard-module mixer-module">
@@ -159,16 +468,23 @@
           <button class="media-btn play-pause-btn" id="playPause" aria-label="Play/Pause" onclick="pauseResumeTimer()"><i id="playPauseIcon" class="fas fa-play"></i></button>
           <button class="media-btn" id="nextTrack" aria-label="Next" onclick="nextTrack()"><i class="fas fa-step-forward"></i></button>
         </div>
+        <div class="track-progress-row">
+          <span id="trackCurrentTime" class="track-time mono">0:00</span>
+          <div class="track-progress-bar" onclick="seekAudioTrack(event)" title="Seek track position">
+            <div id="trackProgressFill" class="track-progress-fill"></div>
+          </div>
+          <span id="trackDuration" class="track-time mono">0:00</span>
+        </div>
       </div>
 
       <div class="dashboard-module master-module">
         <div class="utility-controls">
-          <button class="media-btn" id="loopToggle" aria-label="Toggle Loop" onclick="toggleLoop()"><i class="fas fa-sync"></i></button>
+          <button class="media-btn" id="loopToggle" aria-label="Toggle Loop" title="Loop Current Track" onclick="toggleLoop()"><i class="fas fa-sync"></i></button>
+          <button class="media-btn" id="mute" aria-label="Mute" title="Mute All Audio" onclick="toggleMute()"><i class="fas fa-volume-mute"></i></button>
           <div class="master-fader-container">
             <i class="fas fa-volume-up fader-icon"></i>
             <input type="range" id="masterVolume" class="volume-slider" min="0" max="1" step="0.05" value="1" title="Master Volume">
           </div>
-          <button class="media-btn" id="mute" aria-label="Mute" onclick="toggleMute()"><i class="fas fa-volume-mute"></i></button>
         </div>
       </div>
     </footer>
