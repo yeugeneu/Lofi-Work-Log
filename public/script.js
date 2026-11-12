@@ -8,34 +8,21 @@ let isPaused = true;
 
 function startTimerLoop() {
     stopTimerLoop();
-    if (typeof Worker !== 'undefined') {
-        try {
-            const blob = new Blob([
-                "const id = setInterval(() => postMessage('tick'), 1000); onmessage = (e) => { if (e.data === 'stop') clearInterval(id); };"
-            ], { type: 'application/javascript' });
-            const workerUrl = URL.createObjectURL(blob);
-            timerWorker = new Worker(workerUrl);
-            timerWorker.onmessage = () => updateTimer();
-            URL.revokeObjectURL(workerUrl);
-            return;
-        } catch (err) {
-            console.warn('Web Worker fallback to setInterval:', err);
-        }
-    }
     timerInterval = setInterval(updateTimer, 1000);
 }
 
 function stopTimerLoop() {
-    if (timerWorker) {
-        timerWorker.postMessage('stop');
-        timerWorker.terminate();
-        timerWorker = null;
-    }
     if (timerInterval) {
         clearInterval(timerInterval);
         timerInterval = null;
     }
 }
+
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && !isPaused) {
+        updateTimer();
+    }
+});
 
 // Expose to window for testing
 window.getTimerSeconds = () => timerSeconds;
@@ -49,6 +36,9 @@ window.getIsPaused = () => isPaused;
 window.setIsPaused = (val) => {
     isPaused = val;
     targetEndTime = isPaused ? null : Date.now() + timerSeconds * 1000;
+    if (!isPaused) {
+        startTimerLoop();
+    }
 };
 window.getIsBreakMode = () => isBreakMode;
 let isLoop = false;
@@ -299,7 +289,8 @@ function exportAccomplishments() {
 function updateTimer() {
     if (!isPaused) {
         if (targetEndTime) {
-            timerSeconds = Math.max(0, Math.round((targetEndTime - Date.now()) / 1000));
+            const remaining = Math.round((targetEndTime - Date.now()) / 1000);
+            timerSeconds = Math.max(0, Math.min(timerSeconds - 1, remaining));
         } else {
             timerSeconds--;
         }
@@ -440,6 +431,9 @@ function syncPlayPauseUI() {
 function pauseResumeTimer() {
     isPaused = !isPaused;
     targetEndTime = isPaused ? null : Date.now() + timerSeconds * 1000;
+    if (!isPaused) {
+        startTimerLoop();
+    }
     
     syncPlayPauseUI();
 
@@ -575,7 +569,11 @@ function seekAudioTrack(event) {
     window.audioPlayer.currentTime = ratio * window.audioPlayer.duration;
 }
 
+const SILENT_AUDIO_FALLBACK = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA';
+let audioErrorRetries = 0;
+
 function playRandomAudio() {
+    audioErrorRetries = 0;
     const randomSource = audioSources[Math.floor(Math.random() * audioSources.length)];
 
     if (window.audioPlayer) {
@@ -587,8 +585,18 @@ function playRandomAudio() {
     bindAudioProgressEvents(window.audioPlayer);
 
     window.audioPlayer.addEventListener('error', function() {
-        console.log(`Error loading audio ${randomSource}, play the next audio file`);
-        nextTrack();
+        if (!window.audioPlayer || window.audioPlayer.src === SILENT_AUDIO_FALLBACK) return;
+        audioErrorRetries++;
+        if (audioErrorRetries <= 1 && audioSources.length > 1) {
+            console.log(`Error loading audio, trying next track`);
+            nextTrack(true);
+        } else {
+            window.audioPlayer.src = SILENT_AUDIO_FALLBACK;
+            window.audioPlayer.loop = true;
+            if (!isPaused) {
+                window.audioPlayer.play().catch(() => {});
+            }
+        }
     });
 
     window.audioPlayer.addEventListener('ended', function() {
@@ -606,6 +614,7 @@ function previousTrack() {
         return;
     }
     if (window.audioPlayer) {
+        audioErrorRetries = 0;
         const currentIndex = audioSources.indexOf(window.audioPlayer.src);
         const newIndex = (currentIndex - 1 + audioSources.length) % audioSources.length;
         window.audioPlayer.src = audioSources[newIndex];
@@ -620,12 +629,15 @@ function previousTrack() {
     }
 }
 
-function nextTrack() {
+function nextTrack(isErrorRetry = false) {
     if (isSpotifyMode && spotifyPlayer) {
         spotifyPlayer.nextTrack();
         return;
     }
     if (window.audioPlayer) {
+        if (!isErrorRetry) {
+            audioErrorRetries = 0;
+        }
         const currentIndex = audioSources.indexOf(window.audioPlayer.src);
         const newIndex = (currentIndex + 1) % audioSources.length;
         window.audioPlayer.src = audioSources[newIndex];
@@ -1322,8 +1334,12 @@ function setAppTheme(themeName) {
     localStorage.setItem('focusDeskTheme', themeName);
 }
 
-// Start the timer immediately
-window.onload = async function() {
+// Initialize app once DOM is ready
+let appInitialized = false;
+function initApp() {
+    if (appInitialized) return;
+    appInitialized = true;
+
     const savedTheme = localStorage.getItem('focusDeskTheme');
     if (savedTheme) {
         setAppTheme(savedTheme);
@@ -1382,7 +1398,14 @@ window.onload = async function() {
     resetTimer();
 
     syncPlayPauseUI();
-};
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+} else {
+    initApp();
+}
+window.addEventListener('load', initApp);
 
 // --- Spotify Web Playback SDK Implementation ---
 

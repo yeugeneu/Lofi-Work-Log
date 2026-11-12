@@ -1,6 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Outfit:wght@700;800&family=Roboto+Mono:wght@400;700&display=swap');
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css');
 
+/* Core Tailwind utility classes for immediate zero-FOUC layout */
+.flex { display: flex; }
+.flex-wrap { flex-wrap: wrap; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
+.px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+.py-1\.5 { padding-top: 0.375rem; padding-bottom: 0.375rem; }
+.rounded-full { border-radius: 9999px; }
+
 :root,
 body[data-theme="zen"] {
   --bg-color: #e2e4e6;
@@ -393,10 +404,12 @@ body:not(.dark-theme) .sky-background.active {
 
 .logo-eq span {
   width: 2.5px;
-  height: 3px;
+  height: 10px;
   border-radius: 1px;
   background: var(--accent-color);
-  transition: height 0.2s ease;
+  transform: scaleY(0.3);
+  transform-origin: bottom;
+  transition: transform 0.2s ease;
 }
 
 .logo.playing .logo-eq span:nth-child(1) { animation: eq-bounce 0.55s ease-in-out infinite alternate; }
@@ -405,8 +418,8 @@ body:not(.dark-theme) .sky-background.active {
 .logo.playing .logo-eq span:nth-child(4) { animation: eq-bounce 0.48s ease-in-out 0.22s infinite alternate; }
 
 @keyframes eq-bounce {
-  0% { height: 2px; }
-  100% { height: 10px; }
+  0% { transform: scaleY(0.2); }
+  100% { transform: scaleY(1); }
 }
 
 /* Timer Section */
@@ -845,6 +858,7 @@ body:not(.dark-theme) .sky-background.active {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  min-height: 24px;
 }
 
 .log-list li {

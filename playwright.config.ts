@@ -50,7 +50,7 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'npm run start',
+    command: 'node server.js',
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     ignoreHTTPSErrors: true,
